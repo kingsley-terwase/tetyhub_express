@@ -2,8 +2,11 @@ import { AuthLayout, DashboardLayout, SettingsLayout } from "@/layouts";
 import { ResetPasswordPage, LoginPage } from "@/pages/auth";
 import {
   AdminOverviewPage,
-  CustomerOverviewPage,
+  AiPage,
+  CampaignPage,
   DesignSystemPage,
+  ProductsPage,
+  ServicePage,
 } from "@/pages/dashboard";
 import { CompanyAccountPage, VendorAccountPage } from "@/pages/settings";
 import { useAuthStore } from "@/store/auth";
@@ -27,18 +30,13 @@ export default function Routes() {
     <BaseRoutes>
       <Route element={<DashboardLayout />}>
         <Route path="/design/system" element={<DesignSystemPage />} />
-        {/* PLATFORM SUPER ADMIN */}
-        {/* {ROLE == 1 && SUB_ROLE == 1 && ( */}
         <>
           <Route path="/" element={<AdminOverviewPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/campaign" element={<CampaignPage />} />
+          <Route path="/services" element={<ServicePage />} />
+          <Route path="/ai" element={<AiPage />} />
         </>
-        {/* )} */}
-
-        {/* {ROLE === "CUSTOMER" && ( */}
-        <>
-          <Route path="/customer" element={<CustomerOverviewPage />} />
-        </>
-        {/* )} */}
       </Route>
 
       <Route element={<AuthLayout />}>

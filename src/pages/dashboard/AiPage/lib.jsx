@@ -1,0 +1,110 @@
+/**
+ * @typedef {"running" | "idle" | "failed"} AiStatus
+ *
+ * @typedef {{
+ *   id:        string,
+ *   name:      string,
+ *   type:      string,
+ *   model:     string,
+ *   requests:  number,
+ *   accuracy:  number,
+ *   status:    AiStatus,
+ *   lastRun:   string,
+ * }} AiAgent
+ */
+
+/** @type {AiAgent[]} */
+export const agents = [
+  {
+    id: "A001",
+    name: "Product Recommender",
+    type: "Recommendation",
+    model: "GPT-4o",
+    requests: 12400,
+    accuracy: 94,
+    status: "running",
+    lastRun: "2 min ago",
+  },
+  {
+    id: "A002",
+    name: "Fraud Detector",
+    type: "Classification",
+    model: "Claude 3.5",
+    requests: 8900,
+    accuracy: 98,
+    status: "running",
+    lastRun: "5 min ago",
+  },
+  {
+    id: "A003",
+    name: "Churn Predictor",
+    type: "Prediction",
+    model: "GPT-4o-mini",
+    requests: 3200,
+    accuracy: 87,
+    status: "idle",
+    lastRun: "1 hr ago",
+  },
+  {
+    id: "A004",
+    name: "Review Sentiment",
+    type: "NLP",
+    model: "Claude 3",
+    requests: 5600,
+    accuracy: 91,
+    status: "running",
+    lastRun: "10 min ago",
+  },
+  {
+    id: "A005",
+    name: "Demand Forecaster",
+    type: "Prediction",
+    model: "GPT-4o",
+    requests: 1100,
+    accuracy: 83,
+    status: "failed",
+    lastRun: "3 hr ago",
+  },
+  {
+    id: "A006",
+    name: "Price Optimizer",
+    type: "Optimization",
+    model: "GPT-4o-mini",
+    requests: 2200,
+    accuracy: 89,
+    status: "idle",
+    lastRun: "30 min ago",
+  },
+  {
+    id: "A007",
+    name: "Support Bot",
+    type: "Conversational",
+    model: "Claude 3.5",
+    requests: 34000,
+    accuracy: 92,
+    status: "running",
+    lastRun: "1 min ago",
+  },
+  {
+    id: "A008",
+    name: "SEO Generator",
+    type: "Generation",
+    model: "GPT-4o",
+    requests: 780,
+    accuracy: 88,
+    status: "failed",
+    lastRun: "6 hr ago",
+  },
+];
+
+export const columns = [
+  { label: "" },
+  { label: "Agent" },
+  { label: "Type" },
+  { label: "Model" },
+  { label: "Requests" },
+  { label: "Accuracy" },
+  { label: "Last Run" },
+  { label: "Status" },
+  { label: "Actions" },
+];

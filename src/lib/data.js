@@ -1,17 +1,12 @@
 import {
   BuildingRegular,
-  CheckboxCheckedRegular,
   GlanceRegular,
   PersonRegular,
-  ReceiptRegular,
-  TargetRegular,
-  TextQuoteFilled,
   PersonStarRegular,
   CubeRegular,
-  PeopleAudienceRegular,
-  DocumentSquareRegular,
-  AppsListRegular,
-  TargetArrowRegular,
+  DocumentLandscapeDataRegular,
+  WrenchSettingsRegular,
+  CircleSparkleRegular,
 } from "@fluentui/react-icons";
 
 /** @type {Record<string, import("@mui/material").ChipProps["color"]>} */
@@ -44,49 +39,21 @@ export const namedRoutes = {
     label: "Overview",
     icon: GlanceRegular,
   },
-  "/tasks": {
-    label: "Tasks",
-    icon: CheckboxCheckedRegular,
-  },
-  "/leads": {
-    label: "Leads",
-    icon: TargetRegular,
-  },
-  "/quotations": {
-    label: "Quotations",
-    icon: TextQuoteFilled,
-  },
-  "/invoices": {
-    label: "Invoices",
-    icon: ReceiptRegular,
-  },
-  "/proforma": {
-    label: "Proforma",
-    icon: DocumentSquareRegular,
-  },
-  "/clients": {
-    label: "Clients",
-    icon: PeopleAudienceRegular,
-  },
   "/products": {
     label: "Products",
     icon: CubeRegular,
   },
-  "/projects": {
-    label: "Projects",
-    icon: AppsListRegular,
+  "/campaign": {
+    label: "Campaign",
+    icon: WrenchSettingsRegular,
   },
-  "/project/tasks": {
-    label: "Task",
-    icon: CheckboxCheckedRegular,
+  "/services": {
+    label: "Services",
+    icon: DocumentLandscapeDataRegular,
   },
-  "/templates": {
-    label: "Template",
-    icon: TargetArrowRegular,
-  },
-  "/companies": {
-    label: "Companies",
-    icon: BuildingRegular,
+  "/ai": {
+    label: "Ai",
+    icon: CircleSparkleRegular,
   },
   "/settings/account": {
     label: "Account",

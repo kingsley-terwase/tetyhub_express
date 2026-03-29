@@ -10,3 +10,4 @@ export { default as Dropdown } from "./Dropdown";
 export { default as NavLink } from "./NavLink";
 export { default as SalesDynamics } from "./SalesDynamics";
 export { default as StatusChip } from "../shared/StatusChip";
+export { default as TablePagination } from "../shared/TablePagination";
