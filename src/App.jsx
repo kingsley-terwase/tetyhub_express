@@ -7,6 +7,7 @@ import Routes from "@/routes";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query-client";
 import { NotificationProvider } from "./contexts/notification";
+import { BackToTopBtn } from "./components/ui";
 
 function App() {
   const colors = useColor();
@@ -23,8 +24,9 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <NotificationProvider>
           <ThemeProvider theme={dashboardTheme}>
-            <CssBaseline></CssBaseline>
-            <Routes></Routes>
+            <CssBaseline />
+            <Routes />
+            <BackToTopBtn />
           </ThemeProvider>
         </NotificationProvider>
       </QueryClientProvider>

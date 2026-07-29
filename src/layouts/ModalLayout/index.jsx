@@ -24,7 +24,6 @@ export default function ModalLayout({
   children,
   round = 0,
   width,
-  overflowVisible = false,
   py = 3,
   px = 3,
   title,
@@ -40,21 +39,37 @@ export default function ModalLayout({
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
+
+          width: width
+            ? width
+            : { xs: "90%", sm: "80%", md: "60%", lg: "40%", xl: "30%" },
+
+          maxHeight: "90vh",
+          display: "flex",
+          flexDirection: "column",
+
           backgroundColor: bg.tertiary,
           boxShadow: shadow.spread,
           borderRadius: radius[round],
-          width: width ? width : { xs: "90%", sm: "80%", md: "60%", lg: "40%", xl: "30%" },
           border: "none",
-          boxSizing: "border-box",
           outline: "none",
+          overflow: "hidden",
         }}
       >
-        {title && <ModalHeader title={title} caption={caption} onClose={onClose} py={py} px={px} />}
+        {title && (
+          <ModalHeader
+            title={title}
+            caption={caption}
+            onClose={onClose}
+            py={py}
+            px={px}
+          />
+        )}
         <Box
           sx={{
+            flex: 1,
+            overflowY: "auto",
             padding: `${spacing[py]} ${spacing[px]}`,
-            maxHeight: overflowVisible ? "none" : "60vh",
-            overflowY: overflowVisible ? "visible" : "hidden",
           }}
         >
           {children}

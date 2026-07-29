@@ -20,3 +20,4 @@ export { default as Select } from "./Select";
 export { default as ThemeToggleButton } from "./ThemeToggleButton";
 export { default as RingProgress } from "./RingProgress";
 export { default as ScreenLoader } from "./ScreenLoader";
+export { default as BackToTopBtn } from "./BackToTopBtn";

@@ -12,6 +12,7 @@ import { PulseLoader } from "react-spinners";
  *    noShadow?: boolean,
  * }} props
  */
+
 export default function Button({
   children,
   color,
@@ -21,6 +22,7 @@ export default function Button({
   round = 5,
   disabled,
   icon,
+  sx,
   noShadow,
   ...props
 }) {
@@ -36,6 +38,7 @@ export default function Button({
         borderRadius: radius[round],
         gap: spacing[1],
         boxShadow: !noShadow && color === "secondary" ? shadow.default : "none",
+        ...sx,
       }}
     >
       {startContent && startContent}

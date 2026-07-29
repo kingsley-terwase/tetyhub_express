@@ -1,130 +1,139 @@
-// import { useAuthStore } from "@/store/auth";
+import { useAuthStore } from "@/store/auth";
+import { getRoleKey } from "@/lib/roles";
 import {
-  BuildingRegular,
   DocumentLandscapeDataRegular,
   FormRegular,
   GlanceRegular,
-  PeopleRegular,
   SettingsRegular,
   WrenchSettingsRegular,
   CircleSparkleRegular,
   PersonRegular,
-  BuildingHomeRegular,
-  GridDotsRegular,
-  PaymentRegular,
   PersonStarRegular,
+  ShoppingBagRegular,
 } from "@fluentui/react-icons";
-// import { ROLES } from "./data";
 
-/** @typedef {import("@/types/global.d.js").NavItem} NavItemProps */
+/** @typedef {import("@/types/global.d.js").NavItem & { color?: string }} NavItemProps */
 
 export function useNavigationMenu() {
-  // const { permission } = useAuthStore.getState();
-  // const role = ROLES[`${permission?.role_id}:${permission?.subrole_id}`];
+  const { permission } = useAuthStore.getState();
 
-  const role = "customer";
+  /** @type {string} */
+  // @ts-ignore
+  const role = getRoleKey(permission) ?? "";
 
-  /** @type {any} */
+  /** @type {Record<string, NavItemProps[]>} */
   const menu = {
-    platform_super_admin: [
-      { label: "Overview", path: "/", icon: GlanceRegular },
-      { label: "Admins", path: "/admins", icon: PersonStarRegular },
-      { label: "Settings", path: "/settings", icon: SettingsRegular },
+    platform_admin: [
+      { label: "Overview", path: "/dashboard/admin", icon: GlanceRegular },
+      {
+        label: "Seller Approvals",
+        path: "/dashboard/admin/seller-approvals",
+        icon: PersonStarRegular,
+      },
+      {
+        label: "Listing Moderation",
+        path: "/dashboard/admin/listing-moderation",
+        icon: DocumentLandscapeDataRegular,
+      },
+      {
+        label: "Orders",
+        path: "/dashboard/admin/orders",
+        icon: ShoppingBagRegular,
+      },
+      { label: "Settings", path: "/settings/account", icon: SettingsRegular },
     ],
-    customer: [
-      { label: "Overview", path: "/", icon: GlanceRegular },
 
+    support_staff: [
+      { label: "Overview", path: "/dashboard/admin", icon: GlanceRegular },
+      {
+        label: "Seller Approvals",
+        path: "/dashboard/admin/seller-approvals",
+        icon: PersonStarRegular,
+      },
+      {
+        label: "Listing Moderation",
+        path: "/dashboard/admin/listing-moderation",
+        icon: DocumentLandscapeDataRegular,
+      },
+      {
+        label: "Orders",
+        path: "/dashboard/admin/orders",
+        icon: ShoppingBagRegular,
+      },
+    ],
+
+    seller: [
+      { label: "Overview", path: "/dashboard/seller", icon: GlanceRegular },
       {
         label: "Products",
         color: "#3B009D",
-        path: "/products",
+        path: "/dashboard/seller/products",
         icon: FormRegular,
       },
       {
         label: "Campaign",
         color: "#F1592A",
-        path: "/campaign",
+        path: "/dashboard/seller/campaign",
         icon: WrenchSettingsRegular,
       },
       {
         label: "Services",
         color: "#00FF5E",
-        path: "/services",
+        path: "/dashboard/seller/services",
         icon: DocumentLandscapeDataRegular,
       },
       {
         label: "Ai",
         color: "#ff0099",
-        path: "/ai",
+        path: "/dashboard/seller/ai",
         icon: CircleSparkleRegular,
+      },
+      {
+        label: "Orders",
+        color: "#ff8800",
+        path: "/dashboard/seller/orders",
+        icon: ShoppingBagRegular,
+      },
+      {
+        label: "Customers",
+        color: "#b308de",
+        path: "/dashboard/seller/customers",
+        icon: PersonRegular,
+      },
+    ],
+
+    customer: [
+      { label: "Overview", path: "/dashboard/customer", icon: GlanceRegular },
+      {
+        label: "Orders",
+        path: "/dashboard/customer/orders",
+        icon: ShoppingBagRegular,
       },
     ],
   };
 
-  return menu?.[role] || [];
+  return menu[role] ?? [];
 }
 
 export function useSettingsMenu() {
-  const role = "customer";
+  const { permission } = useAuthStore.getState();
 
-  /**
-   * @type {{
-   *  admin?: NavItemProps[],
-   *  customer?: NavItemProps[]
-   * }}
-   */
+  /** @type {string} */
+  // @ts-ignore
+  const role = getRoleKey(permission) ?? "";
+
+  /** @type {Record<string, NavItemProps[]>} */
   const menu = {
-    admin: [
+    platform_admin: [
       { label: "Account", path: "/settings/account", icon: PersonRegular },
-      {
-        label: "company",
-        path: "",
-        icon: BuildingHomeRegular,
-        sub: [
-          {
-            label: "General",
-            path: "/settings/company/general",
-            icon: GridDotsRegular,
-          },
-          {
-            label: "Members",
-            path: "/settings/company/members",
-            icon: PeopleRegular,
-          },
-          {
-            label: "Billing",
-            path: "/settings/company/billing",
-            icon: PaymentRegular,
-          },
-        ],
-      },
+    ],
+    seller: [
+      { label: "Account", path: "/settings/account", icon: PersonRegular },
     ],
     customer: [
       { label: "Account", path: "/settings/account", icon: PersonRegular },
-      {
-        label: "Company",
-        path: "",
-        icon: BuildingRegular,
-        sub: [
-          {
-            label: "General",
-            path: "/settings/company/general",
-            icon: GridDotsRegular,
-          },
-          {
-            label: "Members",
-            path: "/settings/company/members",
-            icon: PeopleRegular,
-          },
-          {
-            label: "Billing",
-            path: "/settings/company/billing",
-            icon: PaymentRegular,
-          },
-        ],
-      },
     ],
   };
 
-  return menu[role] || [];
+  return menu[role] ?? [];
 }

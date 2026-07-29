@@ -12,6 +12,7 @@ import { useColor } from "@/contexts/color";
  * @param {string} [props.caption]
  * @param {() => void} props.onClose
  */
+
 export default function ModalHeader({ py, px, title, caption, onClose }) {
   const { fg, border } = useColor();
 
@@ -24,11 +25,20 @@ export default function ModalHeader({ py, px, title, caption, onClose }) {
       sx={{ padding: `${spacing[py]} ${spacing[px]}` }}
     >
       <Stack gap={spacingTokens.md}>
-        <Typography variant="h3" fontWeight={700} lineHeight={1} sx={{ whiteSpace: "nowrap" }}>
+        <Typography
+          variant="h3"
+          fontWeight={700}
+          lineHeight={1}
+          sx={{ whiteSpace: "nowrap" }}
+        >
           {title}
         </Typography>
         {caption && (
-          <Typography variant="caption" color="secondary" sx={{ textWrap: "pretty" }}>
+          <Typography
+            variant="caption"
+            color="secondary"
+            sx={{ textWrap: "pretty" }}
+          >
             {caption}
           </Typography>
         )}

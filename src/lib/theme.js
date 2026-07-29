@@ -10,7 +10,7 @@ export const fontSizes = {
 };
 
 export const typefaces = {
-  default: "Inter",
+  default: "DM Sans",
 };
 
 export const buttonColors = {
@@ -411,7 +411,7 @@ export const mainColors = {
 
 export const backgroundColors = {
   light: {
-    primary: "#e3f1ff",
+    primary: "#fff",
     secondary: "#F9FAFB",
     tertiary: "#FFFFFF",
     quaternary: "#F9FAFB",

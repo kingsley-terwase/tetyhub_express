@@ -1,6 +1,9 @@
 import { dashboardNavHeight, spacingTokens } from "@/lib/theme";
 import { useColor } from "@/contexts/color";
-import { LocationDismissRegular, NavigationFilled } from "@fluentui/react-icons";
+import {
+  LocationDismissRegular,
+  NavigationFilled,
+} from "@fluentui/react-icons";
 import { Box, Stack, useMediaQuery, useTheme } from "@mui/material";
 import Avatar from "./Avatar";
 import Notification from "./Notification";
@@ -53,12 +56,21 @@ export default function Navbar({ onToggle }) {
         />
         <Crumb
           active
-          nav={getCurrentRouteName() || { label: "Unknown", icon: LocationDismissRegular }}
+          nav={
+            getCurrentRouteName() || {
+              label: "Dashboard",
+              icon: LocationDismissRegular,
+            }
+          }
         />
       </Stack>
 
       <Stack direction="row" alignItems="center" gap={spacingTokens.md}>
-        <ThemeToggleButton spinning={spinning} isDark={isDark} onToggle={handleToggle} />
+        <ThemeToggleButton
+          spinning={spinning}
+          isDark={isDark}
+          onToggle={handleToggle}
+        />
         <Notification />
         <Avatar />
       </Stack>

@@ -19,7 +19,7 @@ export default function Sidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const { status } = useColor();
+  const { status, main } = useColor();
 
   const [selected, setSelected] = useState(/** @type {number | null} */ (null));
 
@@ -62,7 +62,20 @@ export default function Sidebar() {
             height="25px"
             src={theme === "dark" ? "/logo-light.png" : "/logo-dark.png"}
           ></Box> */}
-          <Typography>Ecommerce</Typography>
+          <Typography
+            sx={{
+              fontSize: 18,
+              fontWeight: 800,
+              letterSpacing: "0.2rem",
+              color: "#fff",
+              flexShrink: 0,
+            }}
+          >
+            TETY
+            <Box component="span" sx={{ color: main.primary }}>
+              HUB
+            </Box>
+          </Typography>
         </Stack>
 
         <Box
