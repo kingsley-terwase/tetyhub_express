@@ -325,6 +325,12 @@ function buildDetailFromListing(listing) {
 }
 
 function SellerCard({ info, border, fg, main, bg }) {
+  const navigate = useNavigate();
+
+  const handleStore = () => {
+    navigate("/store");
+  };
+
   return (
     <Stack
       direction="row"
@@ -379,6 +385,7 @@ function SellerCard({ info, border, fg, main, bg }) {
         </Box>
       </Stack>
       <Button
+        onClick={handleStore}
         size="small"
         variant="outlined"
         sx={{
@@ -803,6 +810,10 @@ export default function ProductDetailPage() {
   const location = useLocation();
   const { bg, fg, border, main } = useColor();
 
+  const handleCart = () => {
+    navigate("/cart");
+  };
+
   // Real clicked product (passed via navigate(path, { state })) takes
   // priority; falls back to the placeholder for direct URL visits/refreshes,
   // where route state doesn't survive.
@@ -1207,6 +1218,7 @@ export default function ProductDetailPage() {
 
           <Stack direction="row" gap={1.2} sx={{ mt: 0.5 }}>
             <Button
+              onClick={handleCart}
               fullWidth
               variant="contained"
               startIcon={<Cart24Regular />}

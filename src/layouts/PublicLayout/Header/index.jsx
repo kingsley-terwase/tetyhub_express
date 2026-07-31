@@ -19,10 +19,10 @@ import {
   ShoppingBag24Filled,
   Navigation24Regular,
   Dismiss24Regular,
-  Info24Regular,
   QuestionCircle24Regular,
   ChevronRight24Regular,
   Tag24Regular,
+  PeopleCommunity24Regular,
 } from "@fluentui/react-icons";
 import { useColor } from "@/contexts/color";
 import { spacingTokens, radius, radiusTokens } from "@/lib/theme";
@@ -36,7 +36,7 @@ const HEADING_FONT = "Syne";
  * generic chevron so a future link added without an entry here doesn't break. */
 const NAV_ICONS = {
   "Sell on TETYHUB": Tag24Regular,
-  "How it works": Info24Regular,
+  Services: PeopleCommunity24Regular,
   Support: QuestionCircle24Regular,
 };
 
@@ -160,7 +160,7 @@ export default function Header() {
                   sx={{
                     fontFamily: HEADING_FONT,
                     fontSize: 14,
-                    fontWeight: 500,
+                    fontWeight: 600,
                     color: fg.primary,
                     whiteSpace: "nowrap",
                   }}

@@ -2,8 +2,7 @@
 // (mega-menu, CategoriesPage cards, etc.) can render a consistent sticker
 // without redefining its own icon map.
 import {
-  StoreMicrosoft24Regular,
-  Question24Regular,
+  // Question24Regular,
   Headset24Regular,
   Laptop24Regular,
   Tag24Regular,
@@ -13,11 +12,13 @@ import {
   Food24Regular,
   Games24Regular,
   Gift24Regular,
+  Cart24Regular,
 } from "@fluentui/react-icons";
 
 export const NAV_LINKS = [
-  { label: "Sell on TETYHUB", href: "/sell", icon: StoreMicrosoft24Regular },
-  { label: "How it works", href: "/how-it-works", icon: Question24Regular },
+  { label: "Sell on TETYHUB", href: "/sell", icon: Cart24Regular },
+  // { label: "How it works", href: "/how-it-works", icon: Question24Regular },
+  { label: "Services", href: "/services", icon: Wrench24Regular },
   { label: "Support", href: "/contact", icon: Headset24Regular },
 ];
 

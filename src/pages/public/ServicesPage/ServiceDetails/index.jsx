@@ -1,7 +1,17 @@
 // @ts-nocheck
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography, InputBase } from "@mui/material";
+import {
+  ShieldCheckmark24Regular,
+  LockClosed24Regular,
+  ThumbLike24Regular,
+  Mail24Regular,
+  Send24Filled,
+  Share24Regular,
+  Link24Regular,
+  Chat24Regular,
+} from "@fluentui/react-icons";
 import { useColor } from "@/contexts/color";
 import { spacingTokens, radiusTokens } from "@/lib/theme";
 import { DEFAULT_SERVICE, buildServiceDetail } from "../data";
@@ -14,6 +24,13 @@ const TABS = [
   { key: "about", label: "About this service" },
   { key: "packages", label: "Packages" },
   { key: "reviews", label: "Reviews" },
+];
+
+// Falls back gracefully if a given service doesn't define social handles yet.
+const SOCIAL_LINKS = [
+  { key: "instagram", label: "Instagram", handle: "@brightpath.tutors" },
+  { key: "twitter", label: "X (Twitter)", handle: "@brightpathng" },
+  { key: "website", label: "Website", handle: "brightpathtutors.com" },
 ];
 
 export default function ServiceDetailPage() {
@@ -31,15 +48,26 @@ export default function ServiceDetailPage() {
 
   const [activeImage, setActiveImage] = useState(0);
   const [activeTab, setActiveTab] = useState("about");
+  const [message, setMessage] = useState("");
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     setActiveImage(0);
     setActiveTab("about");
+    setMessage("");
+    setSent(false);
   }, [SERVICE.id]);
 
   const related = SERVICES.filter(
     (s) => s.category === SERVICE.category && s.id !== SERVICE.id,
   ).slice(0, 4);
+
+  const handleSend = () => {
+    if (!message.trim()) return;
+    // Wire this up to your messaging/API layer.
+    setSent(true);
+    setMessage("");
+  };
 
   return (
     <Box sx={{ backgroundColor: bg.primary, overflowX: "hidden" }}>
@@ -228,13 +256,16 @@ export default function ServiceDetailPage() {
           />
         </Box>
 
-        {/* right — lean sticky provider/booking card only */}
+        {/* right — booking card + trust, social, and quick-contact panels */}
         <Box
           sx={{
             position: { xs: "static", md: "sticky" },
             top: spacingTokens.lg,
             alignSelf: "flex-start",
             minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: spacingTokens.md,
           }}
         >
           <ProviderCard
@@ -244,6 +275,246 @@ export default function ServiceDetailPage() {
             main={main}
             bg={bg}
           />
+
+          {/* trust & safety strip */}
+          <Box
+            sx={{
+              border: `1px solid ${border.primary}`,
+              borderRadius: radiusTokens.md,
+              backgroundColor: bg.secondary,
+              p: spacingTokens.md,
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: "Poppins",
+                fontSize: 12.5,
+                fontWeight: 700,
+                color: fg.primary,
+                mb: 1.4,
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Booking protection
+            </Typography>
+            <Stack gap={1.1}>
+              {[
+                [
+                  ShieldCheckmark24Regular,
+                  "ID and background verified provider",
+                ],
+                [
+                  LockClosed24Regular,
+                  "Payments held securely until job is done",
+                ],
+                [ThumbLike24Regular, "302+ jobs completed with 4.9★ average"],
+              ].map(([Icon, label]) => (
+                <Stack key={label} direction="row" gap={1} alignItems="center">
+                  <Box
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: "50%",
+                      flexShrink: 0,
+                      backgroundColor: `${main.primary}16`,
+                      color: main.primary,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Icon style={{ fontSize: 15 }} />
+                  </Box>
+                  <Typography
+                    sx={{
+                      fontSize: 12.5,
+                      color: fg.secondary,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {label}
+                  </Typography>
+                </Stack>
+              ))}
+            </Stack>
+          </Box>
+
+          {/* social handles */}
+          <Box
+            sx={{
+              border: `1px solid ${border.primary}`,
+              borderRadius: radiusTokens.md,
+              p: spacingTokens.md,
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: "Poppins",
+                fontSize: 12.5,
+                fontWeight: 700,
+                color: fg.primary,
+                mb: 1.4,
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Find {SERVICE.providerName} online
+            </Typography>
+            <Stack gap={1}>
+              {SOCIAL_LINKS.map((s) => (
+                <Stack
+                  key={s.key}
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  sx={{
+                    px: 1.2,
+                    py: 0.9,
+                    borderRadius: radiusTokens.sm ?? 8,
+                    border: `1px solid ${border.primary}`,
+                    cursor: "pointer",
+                    transition: "border-color 0.15s ease",
+                    "&:hover": { borderColor: main.primary },
+                  }}
+                >
+                  <Stack direction="row" gap={1} alignItems="center">
+                    <Link24Regular
+                      style={{ fontSize: 15, color: fg.secondary }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: 12.5,
+                        fontWeight: 600,
+                        color: fg.primary,
+                      }}
+                    >
+                      {s.label}
+                    </Typography>
+                  </Stack>
+                  <Typography sx={{ fontSize: 12, color: fg.tertiary }}>
+                    {s.handle}
+                  </Typography>
+                </Stack>
+              ))}
+            </Stack>
+            <Stack direction="row" gap={1} sx={{ mt: 1.4 }}>
+              <Box
+                sx={{
+                  flex: 1,
+                  textAlign: "center",
+                  py: 0.9,
+                  borderRadius: radiusTokens.sm ?? 8,
+                  border: `1px solid ${border.primary}`,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: fg.primary,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 0.6,
+                }}
+              >
+                <Share24Regular style={{ fontSize: 15 }} />
+                Share listing
+              </Box>
+            </Stack>
+          </Box>
+
+          {/* quick contact form */}
+          <Box
+            sx={{
+              border: `1px solid ${border.primary}`,
+              borderRadius: radiusTokens.md,
+              p: spacingTokens.md,
+            }}
+          >
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={0.8}
+              sx={{ mb: 1.4 }}
+            >
+              <Chat24Regular style={{ fontSize: 17, color: main.primary }} />
+              <Typography
+                sx={{
+                  fontFamily: "Poppins",
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  color: fg.primary,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Ask a quick question
+              </Typography>
+            </Stack>
+            <Typography
+              sx={{
+                fontSize: 12.5,
+                color: fg.secondary,
+                mb: 1.4,
+                lineHeight: 1.5,
+              }}
+            >
+              Send {SERVICE.providerName} a message before you book — most
+              providers reply within a couple of hours.
+            </Typography>
+            <Box
+              sx={{
+                border: `1px solid ${border.primary}`,
+                borderRadius: radiusTokens.sm ?? 8,
+                px: 1.4,
+                py: 1,
+                mb: 1,
+              }}
+            >
+              <InputBase
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={`Hi ${SERVICE.providerName}, is this available on...`}
+                multiline
+                minRows={2}
+                sx={{ fontSize: 12.5, width: "100%", color: fg.primary }}
+              />
+            </Box>
+            <Box
+              onClick={handleSend}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 0.7,
+                backgroundColor: main.primary,
+                color: "#fff",
+                borderRadius: radiusTokens.sm ?? 8,
+                py: 1,
+                fontFamily: "Poppins",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              <Send24Filled style={{ fontSize: 15 }} />
+              Send message
+            </Box>
+            {sent && (
+              <Stack
+                direction="row"
+                alignItems="center"
+                gap={0.6}
+                sx={{ mt: 1 }}
+              >
+                <Mail24Regular style={{ fontSize: 13, color: main.primary }} />
+                <Typography
+                  sx={{ fontSize: 11.5, color: main.primary, fontWeight: 600 }}
+                >
+                  Sent — {SERVICE.providerName} usually replies within an hour.
+                </Typography>
+              </Stack>
+            )}
+          </Box>
         </Box>
       </Box>
 
@@ -267,7 +538,7 @@ export default function ServiceDetailPage() {
             sx={{
               display: "grid",
               gridTemplateColumns: {
-                xs: "repeat(2, 1fr)",
+                xs: "repeat(1, 1fr)",
                 sm: "repeat(3, 1fr)",
                 lg: "repeat(4, 1fr)",
               },

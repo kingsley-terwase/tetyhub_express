@@ -22,13 +22,23 @@ import {
 import OrderDetail from "@/pages/dashboard/SellerDashboard/OrderPage/OrderDetail";
 import {
   AboutPage,
+  CartPage,
   CategoryListingPage,
+  CheckoutPage,
+  FAQPage,
   HomePage,
+  HowItWorksPage,
   LoginPage,
+  OrderConfirmedPage,
   RegisterPage,
+  ReportIssuePage,
+  ReviewPage,
   SellPage,
   ServiceDetailPage,
   ServicesPage,
+  StorePage,
+  SupportChatPage,
+  TrackOrderPage,
 } from "@/pages/public";
 import { CompanyAccountPage, VendorAccountPage } from "@/pages/settings";
 import { useAuthStore } from "@/store/auth";
@@ -55,9 +65,18 @@ export default function Routes() {
         <Route path="/category/:categoryId" element={<CategoryListingPage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
         <Route path="/sell" element={<SellPage />} />
-
+        <Route path="/store" element={<StorePage />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/service/:id" element={<ServiceDetailPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-confirmed" element={<OrderConfirmedPage />} />
+        <Route path="/track-order" element={<TrackOrderPage />} />
+        <Route path="/review" element={<ReviewPage />} />
+        <Route path="/support/report" element={<ReportIssuePage />} />
+        <Route path="/support/chat" element={<SupportChatPage />} />
+        <Route path="/faq" element={<FAQPage />} />
       </Route>
       {/*  */}
       {/* <Route element={<AuthLayout />}> */}
