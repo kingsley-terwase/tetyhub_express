@@ -163,14 +163,30 @@ export default function CheckoutPage() {
 
   return (
     <Box sx={{ backgroundColor: bg.primary }}>
-      {/* header */}
       <Box
         sx={{
-          px: { xs: spacingTokens.md, md: spacingTokens.xl },
-          pt: { xs: 3, md: 4.5 },
-          pb: 2.5,
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            lg: "7.2fr 4.8fr",
+          },
+          gap: {
+            xs: 2,
+            sm: 3,
+            md: 4,
+          },
+          px: {
+            xs: 2,
+            sm: 3,
+            md: spacingTokens.xl,
+          },
+          pb: {
+            xs: 4,
+            md: 8,
+          },
           maxWidth: 1200,
           mx: "auto",
+          alignItems: "start",
         }}
       >
         <Typography
@@ -226,7 +242,7 @@ export default function CheckoutPage() {
                 </Typography>
               </Stack>
             ) : (
-              <Box sx={{ pl: 4.4 }}>
+              <Box sx={{}}>
                 <Stack direction={{ xs: "column", sm: "row" }} gap={1.4}>
                   <Field
                     label="Full name"
@@ -545,7 +561,14 @@ export default function CheckoutPage() {
         {/* ---------------- RIGHT: order summary ---------------- */}
         <Box
           sx={{
-            position: { xs: "static", md: "sticky" },
+            order: {
+              xs: 1,
+              lg: 2,
+            },
+            position: {
+              xs: "static",
+              lg: "sticky",
+            },
             top: spacingTokens.lg,
             alignSelf: "flex-start",
           }}

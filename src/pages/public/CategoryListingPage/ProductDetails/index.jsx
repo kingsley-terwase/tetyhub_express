@@ -10,6 +10,8 @@ import {
   InputBase,
   Select,
   MenuItem,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Heart24Regular,
@@ -214,13 +216,6 @@ const RELATED = [
 
 const PAYMENT_METHODS = ["Card", "Pay on Delivery", "Bank Transfer"];
 
-// A ProductListingCard only carries card-shaped fields (name, price, rating,
-// one image, category). This fills in everything the detail page additionally
-// needs — gallery array, sizes, description, seller card, rating breakdown —
-// with reasonable generic defaults rather than leaving them undefined.
-// Generic review templates cycled per listing — not tied to any specific
-// product, so they read reasonably for any category rather than being
-// fashion-shoe-specific like DEFAULT_PRODUCT's hand-written ones.
 const GENERIC_REVIEWERS = [
   { name: "Adaeze O.", verified: true },
   { name: "Ibrahim S.", verified: true },
@@ -336,6 +331,8 @@ function SellerCard({ info, border, fg, main, bg }) {
       direction="row"
       alignItems="center"
       justifyContent="space-between"
+      flexWrap={{ xs: "wrap", sm: "nowrap" }}
+      gap={1}
       sx={{
         border: `1px solid ${border.primary}`,
         borderRadius: radiusTokens.sm,
@@ -343,7 +340,7 @@ function SellerCard({ info, border, fg, main, bg }) {
         backgroundColor: bg.secondary,
       }}
     >
-      <Stack direction="row" alignItems="center" gap={1}>
+      <Stack direction="row" alignItems="center" gap={1} sx={{ minWidth: 0 }}>
         <Box
           sx={{
             width: 36,
@@ -361,23 +358,26 @@ function SellerCard({ info, border, fg, main, bg }) {
         >
           {info.name.charAt(0)}
         </Box>
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Stack direction="row" alignItems="center" gap={0.4}>
             <Typography
+              noWrap
               sx={{
                 fontFamily: "Poppins",
                 fontSize: 12.5,
                 fontWeight: 700,
                 color: fg.primary,
+                maxWidth: { xs: 140, sm: "none" },
               }}
             >
               {info.name}
             </Typography>
             <CheckmarkCircle24Filled
-              style={{ fontSize: 13, color: main.primary }}
+              style={{ fontSize: 13, color: main.primary, flexShrink: 0 }}
             />
           </Stack>
           <Typography
+            noWrap
             sx={{ fontFamily: "Poppins", fontSize: 11, color: fg.tertiary }}
           >
             {info.rating}★ seller · {info.responseRate}% response rate
@@ -414,8 +414,6 @@ const AREAS_BY_STATE = {
   Oyo: ["Bodija", "Ring Road"],
 };
 
-// Formats "how many hours/minutes until this evening's dispatch cutoff" —
-// recalculates every minute so it doesn't go stale like a hardcoded countdown would.
 function useDispatchCountdown(cutoffHour = 18) {
   const [label, setLabel] = useState("");
 
@@ -480,7 +478,7 @@ function DeliveryMethodRow({
       >
         <Icon style={{ fontSize: 17, color: fg.secondary }} />
       </Box>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -503,6 +501,7 @@ function DeliveryMethodRow({
               color: main.primary,
               fontWeight: 600,
               cursor: "pointer",
+              flexShrink: 0,
             }}
           >
             Details
@@ -536,7 +535,7 @@ function DeliveryReturns({ border, fg, main, bg }) {
 
   const handleStateChange = (newState) => {
     setState(newState);
-    setArea(AREAS_BY_STATE[newState][0]); // reset area whenever state changes
+    setArea(AREAS_BY_STATE[newState][0]);
   };
 
   return (
@@ -559,7 +558,13 @@ function DeliveryReturns({ border, fg, main, bg }) {
         Delivery & Returns
       </Typography>
 
-      <Stack direction="row" alignItems="center" gap={0.6} sx={{ mb: 1.2 }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap={0.6}
+        flexWrap="wrap"
+        sx={{ mb: 1.2 }}
+      >
         <Flash20Filled style={{ fontSize: 13, color: main.primary }} />
         <Typography
           sx={{
@@ -592,7 +597,9 @@ function DeliveryReturns({ border, fg, main, bg }) {
         </Typography>
       </Stack>
 
-      <Stack direction="row" gap={1} sx={{ mb: 1.4 }}>
+      {/* Stacks vertically at very narrow widths instead of cramming two
+          selects side by side */}
+      <Stack direction={{ xs: "column", sm: "row" }} gap={1} sx={{ mb: 1.4 }}>
         <Select
           size="small"
           value={state}
@@ -613,7 +620,11 @@ function DeliveryReturns({ border, fg, main, bg }) {
           size="small"
           value={area}
           onChange={(e) => setArea(e.target.value)}
-          sx={{ flex: 1.4, fontSize: 12.5, fontFamily: "Poppins" }}
+          sx={{
+            flex: { xs: 1, sm: 1.4 },
+            fontSize: 12.5,
+            fontFamily: "Poppins",
+          }}
         >
           {AREAS_BY_STATE[state].map((a) => (
             <MenuItem
@@ -665,7 +676,7 @@ function DeliveryReturns({ border, fg, main, bg }) {
             style={{ fontSize: 17, color: fg.secondary }}
           />
         </Box>
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -688,6 +699,7 @@ function DeliveryReturns({ border, fg, main, bg }) {
                 color: main.primary,
                 fontWeight: 600,
                 cursor: "pointer",
+                flexShrink: 0,
               }}
             >
               Details
@@ -740,7 +752,7 @@ function ShareRow({ productName, fg, border, bg }) {
   };
 
   return (
-    <Stack direction="row" alignItems="center" gap={1}>
+    <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
       <Typography
         sx={{
           fontFamily: "Poppins",
@@ -809,14 +821,13 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { bg, fg, border, main } = useColor();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   const handleCart = () => {
     navigate("/cart");
   };
 
-  // Real clicked product (passed via navigate(path, { state })) takes
-  // priority; falls back to the placeholder for direct URL visits/refreshes,
-  // where route state doesn't survive.
   const listingProduct = location.state?.product;
   const PRODUCT = useMemo(
     () =>
@@ -830,9 +841,6 @@ export default function ProductDetailPage() {
   const [wishlisted, setWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
 
-  // This component may not remount when navigating between two products on
-  // the same route (e.g. clicking a "You may also like" card) — reset
-  // per-product UI state explicitly whenever the underlying product changes.
   useEffect(() => {
     setActiveImage(0);
     setQty(1);
@@ -845,9 +853,430 @@ export default function ProductDetailPage() {
     ? Math.round(100 - (PRODUCT.price / PRODUCT.originalPrice) * 100)
     : null;
 
+  // ---------------------------------------------------------------------
+  // Content is split into named blocks (instead of two hardcoded columns)
+  // so mobile and desktop can put them in a completely different order
+  // without duplicating any markup or state. `isDesktop` picks ONE tree
+  // below — nothing renders twice.
+  // ---------------------------------------------------------------------
+
+  const galleryBlock = (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column-reverse", md: "row" },
+        gap: 1.5,
+      }}
+    >
+      {/* thumbnail rail — horizontal scroll on mobile instead of
+          wrapping/overflowing the viewport, smaller thumbs on xs */}
+      <Stack
+        direction={{ xs: "row", md: "column" }}
+        gap={1}
+        sx={{
+          overflowX: { xs: "auto", md: "visible" },
+          flexWrap: "nowrap",
+          pb: { xs: 0.5, md: 0 },
+        }}
+      >
+        {PRODUCT.images.map((img, i) => (
+          <Box
+            key={img}
+            onClick={() => setActiveImage(i)}
+            sx={{
+              width: { xs: 36, md: 68 },
+              height: { xs: 36, md: 68 },
+              borderRadius: radiusTokens.sm,
+              overflow: "hidden",
+              cursor: "pointer",
+              border: `2px solid ${i === activeImage ? main.primary : border.primary}`,
+              backgroundColor: "#fff",
+              flexShrink: 0,
+            }}
+          >
+            <Box
+              component="img"
+              src={img}
+              sx={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          </Box>
+        ))}
+      </Stack>
+
+      <Box
+        sx={{
+          flexGrow: 1,
+          borderRadius: radiusTokens.md,
+          border: `1px solid ${border.primary}`,
+          overflow: "hidden",
+          backgroundColor: "#fff",
+        }}
+      >
+        <Box
+          component="img"
+          src={PRODUCT.images[activeImage]}
+          alt={PRODUCT.name}
+          sx={{
+            width: "100%",
+            height: { xs: 280, sm: 340, md: 480 },
+            objectFit: "contain",
+            display: "block",
+          }}
+        />
+      </Box>
+    </Box>
+  );
+
+  const keyHighlightsBlock = (
+    <KeyHighlights
+      product={PRODUCT}
+      fg={fg}
+      border={border}
+      main={main}
+      bg={bg}
+    />
+  );
+
+  // Nav + the content it controls, always kept together so switching tabs
+  // never requires scrolling somewhere else to see the result.
+  const navAndTabsBlock = (
+    <Box sx={{ mt: spacingTokens.md }}>
+      <ProductInfoSidebarNav
+        activeTab={activeTab}
+        onSelect={setActiveTab}
+        fg={fg}
+        border={border}
+        main={main}
+        bg={bg}
+      />
+      <ProductInfoTabs
+        product={PRODUCT}
+        activeTab={activeTab}
+        border={border}
+        fg={fg}
+        main={main}
+        bg={bg}
+      />
+    </Box>
+  );
+
+  // Everything needed to decide + buy: badges, title, seller, price,
+  // rating, stock, size, quantity, Add to Cart.
+  const buyEssentialsBlock = (
+    <Stack gap={1.2}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+      >
+        {PRODUCT.official && (
+          <Box
+            sx={{
+              px: 1,
+              py: 0.3,
+              borderRadius: radiusTokens.sm,
+              backgroundColor: main.primary,
+              width: "fit-content",
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: "Poppins",
+                fontSize: 10.5,
+                fontWeight: 700,
+                color: "#fff",
+              }}
+            >
+              Official Store
+            </Typography>
+          </Box>
+        )}
+        <Stack direction="row" gap={0.5}>
+          <IconButton size="small" aria-label="Share">
+            <Share24Regular style={{ fontSize: 18, color: fg.tertiary }} />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => setWishlisted((w) => !w)}
+            aria-label="Wishlist"
+          >
+            {wishlisted ? (
+              <Heart24Filled style={{ fontSize: 20, color: "#ef4444" }} />
+            ) : (
+              <Heart24Regular style={{ fontSize: 20, color: fg.tertiary }} />
+            )}
+          </IconButton>
+        </Stack>
+      </Stack>
+
+      <Typography
+        sx={{
+          fontFamily: "Poppins",
+          fontSize: { xs: 16, md: 18 },
+          fontWeight: 700,
+          color: fg.primary,
+          lineHeight: 1.35,
+        }}
+      >
+        {PRODUCT.name}
+      </Typography>
+
+      <SellerCard
+        info={PRODUCT.sellerInfo}
+        border={border}
+        fg={fg}
+        main={main}
+        bg={bg}
+      />
+
+      <Stack direction="row" alignItems="baseline" gap={1} flexWrap="wrap">
+        <Typography
+          sx={{
+            fontFamily: "Poppins",
+            fontSize: 23,
+            fontWeight: 800,
+            color: fg.primary,
+          }}
+        >
+          ₦{PRODUCT.price.toLocaleString()}
+        </Typography>
+        {PRODUCT.originalPrice && (
+          <>
+            <Typography
+              sx={{
+                fontFamily: "Poppins",
+                fontSize: 13,
+                color: fg.tertiary,
+                textDecoration: "line-through",
+              }}
+            >
+              ₦{PRODUCT.originalPrice.toLocaleString()}
+            </Typography>
+            <Box
+              sx={{
+                px: 0.8,
+                py: 0.2,
+                borderRadius: radiusTokens.sm,
+                background: "linear-gradient(135deg, #ef4444, #f97316)",
+              }}
+            >
+              <Typography
+                sx={{ fontSize: 10.5, fontWeight: 800, color: "#fff" }}
+              >
+                -{discount}%
+              </Typography>
+            </Box>
+          </>
+        )}
+      </Stack>
+
+      <Stack direction="row" alignItems="center" gap={1}>
+        <StarRow rating={PRODUCT.rating} size={14} />
+        <Typography
+          sx={{
+            fontFamily: "Poppins",
+            fontSize: 12,
+            color: main.primary,
+            fontWeight: 600,
+          }}
+        >
+          ({PRODUCT.ratingCount.toLocaleString()})
+        </Typography>
+      </Stack>
+
+      <Stack direction="row" alignItems="center" gap={0.6}>
+        <Flash20Filled style={{ fontSize: 14, color: main.primary }} />
+        <Typography
+          sx={{
+            fontFamily: "Poppins",
+            fontSize: 12,
+            fontWeight: 700,
+            color: main.primary,
+          }}
+        >
+          TETYHUB EXPRESS
+        </Typography>
+      </Stack>
+
+      {PRODUCT.stockCount <= 10 && (
+        <Typography
+          sx={{
+            fontFamily: "Poppins",
+            fontSize: 12,
+            fontWeight: 700,
+            color: "#ef4444",
+          }}
+        >
+          Only {PRODUCT.stockCount} left in stock — order soon
+        </Typography>
+      )}
+
+      <Box sx={{ borderTop: `1px solid ${border.primary}`, my: 0.5 }} />
+
+      {PRODUCT.sizes?.length > 0 && (
+        <>
+          <Typography
+            sx={{
+              fontFamily: "Poppins",
+              fontSize: 12,
+              fontWeight: 700,
+              color: fg.secondary,
+              mb: 0.4,
+            }}
+          >
+            SIZE — {selectedSize}
+          </Typography>
+          <Stack direction="row" gap={0.8} flexWrap="wrap">
+            {PRODUCT.sizes.map((s) => (
+              <Box
+                key={s}
+                onClick={() => setSelectedSize(s)}
+                sx={{
+                  px: 1.4,
+                  py: 0.7,
+                  borderRadius: radiusTokens.sm,
+                  border: `1.5px solid ${s === selectedSize ? main.primary : border.primary}`,
+                  backgroundColor:
+                    s === selectedSize ? `${main.primary}10` : "transparent",
+                  cursor: "pointer",
+                  fontFamily: "Poppins",
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  color: s === selectedSize ? main.primary : fg.secondary,
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {s}
+              </Box>
+            ))}
+          </Stack>
+        </>
+      )}
+
+      <Stack direction="row" alignItems="center" gap={2} sx={{ mt: 1 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{
+            border: `1px solid ${border.primary}`,
+            borderRadius: radiusTokens.sm,
+          }}
+        >
+          <IconButton
+            size="small"
+            onClick={() => setQty((q) => Math.max(1, q - 1))}
+          >
+            <Subtract16Regular style={{ fontSize: 14 }} />
+          </IconButton>
+          <Typography
+            sx={{
+              fontFamily: "Poppins",
+              fontSize: 13,
+              fontWeight: 600,
+              width: 26,
+              textAlign: "center",
+            }}
+          >
+            {qty}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => setQty((q) => Math.min(PRODUCT.stockCount, q + 1))}
+          >
+            <Add16Regular style={{ fontSize: 14 }} />
+          </IconButton>
+        </Stack>
+      </Stack>
+
+      <Stack direction="row" gap={1.2} sx={{ mt: 0.5 }}>
+        <Button
+          onClick={handleCart}
+          fullWidth
+          variant="contained"
+          startIcon={<Cart24Regular />}
+          sx={{
+            borderColor: main.primary,
+            color: main.primary,
+            textTransform: "none",
+            fontFamily: "Poppins",
+            fontWeight: 700,
+            borderRadius: radiusTokens.md,
+            py: { xs: 1.4, md: 2 },
+          }}
+        >
+          Add to Cart
+        </Button>
+      </Stack>
+    </Stack>
+  );
+
+  // Secondary decision info: delivery, sharing, payment methods, trust
+  // badges, and the condensed summary/quick-buy card.
+  const buyExtraBlock = (
+    <Stack gap={1.2}>
+      <DeliveryReturns border={border} fg={fg} main={main} bg={bg} />
+
+      <ShareRow productName={PRODUCT.name} fg={fg} border={border} bg={bg} />
+
+      <Stack direction="row" gap={0.8} flexWrap="wrap">
+        {PAYMENT_METHODS.map((method) => (
+          <Box
+            key={method}
+            sx={{
+              fontFamily: "Poppins",
+              fontSize: 10.5,
+              fontWeight: 600,
+              color: fg.tertiary,
+              border: `1px solid ${border.primary}`,
+              borderRadius: radiusTokens.sm,
+              px: 0.9,
+              py: 0.3,
+            }}
+          >
+            {method}
+          </Box>
+        ))}
+      </Stack>
+
+      <Stack direction="row" gap={2.5} flexWrap="wrap" sx={{ mt: 0.5 }}>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <ShieldCheckmark24Regular
+            style={{ fontSize: 15, color: fg.tertiary }}
+          />
+          <Typography
+            sx={{ fontFamily: "Poppins", fontSize: 11, color: fg.tertiary }}
+          >
+            Secure payment
+          </Typography>
+        </Stack>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <ArrowRepeatAll24Regular
+            style={{ fontSize: 15, color: fg.tertiary }}
+          />
+          <Typography
+            sx={{ fontFamily: "Poppins", fontSize: 11, color: fg.tertiary }}
+          >
+            7-day returns
+          </Typography>
+        </Stack>
+      </Stack>
+
+      <Box sx={{ borderTop: `1px solid ${border.primary}`, mt: 0.5, pt: 1.5 }}>
+        <ProductSummaryCard
+          product={PRODUCT}
+          fg={fg}
+          border={border}
+          main={main}
+          bg={bg}
+        />
+      </Box>
+    </Stack>
+  );
+
   return (
     <Box sx={{ backgroundColor: bg.primary }}>
-      {/* breadcrumb */}
+      {/* breadcrumb — shorter max-width on small phones so the truncated
+          product name doesn't force horizontal scroll */}
       <Stack
         direction="row"
         alignItems="center"
@@ -869,7 +1298,8 @@ export default function ProductDetailPage() {
                 color: i === arr.length - 1 ? fg.primary : fg.tertiary,
                 fontWeight: i === arr.length - 1 ? 600 : 400,
                 cursor: i < arr.length - 1 ? "pointer" : "default",
-                maxWidth: i === arr.length - 1 ? 320 : "none",
+                maxWidth:
+                  i === arr.length - 1 ? { xs: 160, sm: 240, md: 320 } : "none",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -886,432 +1316,49 @@ export default function ProductDetailPage() {
         ))}
       </Stack>
 
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "8fr 4fr" },
-          gap: spacingTokens.xl,
-          px: { xs: spacingTokens.md, md: spacingTokens.xl },
-          py: spacingTokens.lg,
-        }}
-      >
-        {/* gallery — 8 of 12 columns, vertical thumbnail rail on desktop like Jumia's PDP */}
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column-reverse", md: "row" },
-              gap: 1.5,
-            }}
-          >
-            <Stack direction={{ xs: "row", md: "column" }} gap={1}>
-              {PRODUCT.images.map((img, i) => (
-                <Box
-                  key={img}
-                  onClick={() => setActiveImage(i)}
-                  sx={{
-                    width: 68,
-                    height: 68,
-                    borderRadius: radiusTokens.sm,
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    border: `2px solid ${i === activeImage ? main.primary : border.primary}`,
-                    backgroundColor: "#fff",
-                    flexShrink: 0,
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src={img}
-                    sx={{ width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                </Box>
-              ))}
-            </Stack>
-
-            <Box
-              sx={{
-                flexGrow: 1,
-                borderRadius: radiusTokens.md,
-                border: `1px solid ${border.primary}`,
-                overflow: "hidden",
-                backgroundColor: "#fff",
-              }}
-            >
-              <Box
-                component="img"
-                src={PRODUCT.images[activeImage]}
-                alt={PRODUCT.name}
-                sx={{
-                  width: "100%",
-                  height: { xs: 340, md: 480 },
-                  objectFit: "contain",
-                  display: "block",
-                }}
-              />
-            </Box>
-          </Box>
-
-          {/* Sits directly under the gallery now, not as a separate full-width
-              section below the whole grid — that gap was the unwanted space. */}
-          {/* Fills the gap between the gallery and the tab content — the
-              sticky sidebar's nav sits near the bottom of a tall stack, so
-              without this, the content here would start well above it. */}
-          <KeyHighlights
-            product={PRODUCT}
-            fg={fg}
-            border={border}
-            main={main}
-            bg={bg}
-          />
-
-          <ProductInfoTabs
-            product={PRODUCT}
-            activeTab={activeTab}
-            border={border}
-            fg={fg}
-            main={main}
-            bg={bg}
-          />
-        </Box>
-
-        {/* buy box — 4 of 12 columns, sticky so it stays visible while the
-            (now taller) left column scrolls, instead of ending early and
-            leaving blank space beneath it */}
-        <Stack
-          gap={1.2}
+      {/* Desktop: original 2-column layout (gallery/highlights/tabs on the
+          left, a sticky buy box on the right). Mobile: a single column in
+          purchase-first reading order — see the block comment above. */}
+      {isDesktop ? (
+        <Box
           sx={{
-            position: "sticky",
-            top: spacingTokens.lg,
-            alignSelf: "flex-start",
+            display: "grid",
+            gridTemplateColumns: "8fr 4fr",
+            gap: spacingTokens.xl,
+            px: { md: spacingTokens.xl },
+            py: spacingTokens.lg,
           }}
         >
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="flex-start"
-          >
-            {PRODUCT.official && (
-              <Box
-                sx={{
-                  px: 1,
-                  py: 0.3,
-                  borderRadius: radiusTokens.sm,
-                  backgroundColor: main.primary,
-                  width: "fit-content",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontFamily: "Poppins",
-                    fontSize: 10.5,
-                    fontWeight: 700,
-                    color: "#fff",
-                  }}
-                >
-                  Official Store
-                </Typography>
-              </Box>
-            )}
-            <Stack direction="row" gap={0.5}>
-              <IconButton size="small" aria-label="Share">
-                <Share24Regular style={{ fontSize: 18, color: fg.tertiary }} />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => setWishlisted((w) => !w)}
-                aria-label="Wishlist"
-              >
-                {wishlisted ? (
-                  <Heart24Filled style={{ fontSize: 20, color: "#ef4444" }} />
-                ) : (
-                  <Heart24Regular
-                    style={{ fontSize: 20, color: fg.tertiary }}
-                  />
-                )}
-              </IconButton>
-            </Stack>
-          </Stack>
-
-          <Typography
-            sx={{
-              fontFamily: "Poppins",
-              fontSize: { xs: 16, md: 18 },
-              fontWeight: 700,
-              color: fg.primary,
-              lineHeight: 1.35,
-            }}
-          >
-            {PRODUCT.name}
-          </Typography>
-
-          <SellerCard
-            info={PRODUCT.sellerInfo}
-            border={border}
-            fg={fg}
-            main={main}
-            bg={bg}
-          />
-
-          <Stack direction="row" alignItems="baseline" gap={1}>
-            <Typography
-              sx={{
-                fontFamily: "Poppins",
-                fontSize: 23,
-                fontWeight: 800,
-                color: fg.primary,
-              }}
-            >
-              ₦{PRODUCT.price.toLocaleString()}
-            </Typography>
-            {PRODUCT.originalPrice && (
-              <>
-                <Typography
-                  sx={{
-                    fontFamily: "Poppins",
-                    fontSize: 13,
-                    color: fg.tertiary,
-                    textDecoration: "line-through",
-                  }}
-                >
-                  ₦{PRODUCT.originalPrice.toLocaleString()}
-                </Typography>
-                <Box
-                  sx={{
-                    px: 0.8,
-                    py: 0.2,
-                    borderRadius: radiusTokens.sm,
-                    background: "linear-gradient(135deg, #ef4444, #f97316)",
-                  }}
-                >
-                  <Typography
-                    sx={{ fontSize: 10.5, fontWeight: 800, color: "#fff" }}
-                  >
-                    -{discount}%
-                  </Typography>
-                </Box>
-              </>
-            )}
-          </Stack>
-
-          <Stack direction="row" alignItems="center" gap={1}>
-            <StarRow rating={PRODUCT.rating} size={14} />
-            <Typography
-              sx={{
-                fontFamily: "Poppins",
-                fontSize: 12,
-                color: main.primary,
-                fontWeight: 600,
-              }}
-            >
-              ({PRODUCT.ratingCount.toLocaleString()})
-            </Typography>
-          </Stack>
-
-          <Stack direction="row" alignItems="center" gap={0.6}>
-            <Flash20Filled style={{ fontSize: 14, color: main.primary }} />
-            <Typography
-              sx={{
-                fontFamily: "Poppins",
-                fontSize: 12,
-                fontWeight: 700,
-                color: main.primary,
-              }}
-            >
-              TETYHUB EXPRESS
-            </Typography>
-          </Stack>
-
-          {PRODUCT.stockCount <= 10 && (
-            <Typography
-              sx={{
-                fontFamily: "Poppins",
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#ef4444",
-              }}
-            >
-              Only {PRODUCT.stockCount} left in stock — order soon
-            </Typography>
-          )}
-
-          <Box sx={{ borderTop: `1px solid ${border.primary}`, my: 0.5 }} />
-
-          {PRODUCT.sizes?.length > 0 && (
-            <>
-              <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: fg.secondary,
-                  mb: 0.4,
-                }}
-              >
-                SIZE — {selectedSize}
-              </Typography>
-              <Stack direction="row" gap={0.8} flexWrap="wrap">
-                {PRODUCT.sizes.map((s) => (
-                  <Box
-                    key={s}
-                    onClick={() => setSelectedSize(s)}
-                    sx={{
-                      px: 1.4,
-                      py: 0.7,
-                      borderRadius: radiusTokens.sm,
-                      border: `1.5px solid ${s === selectedSize ? main.primary : border.primary}`,
-                      backgroundColor:
-                        s === selectedSize
-                          ? `${main.primary}10`
-                          : "transparent",
-                      cursor: "pointer",
-                      fontFamily: "Poppins",
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      color: s === selectedSize ? main.primary : fg.secondary,
-                      transition: "all 0.15s ease",
-                    }}
-                  >
-                    {s}
-                  </Box>
-                ))}
-              </Stack>
-            </>
-          )}
-
-          <Stack direction="row" alignItems="center" gap={2} sx={{ mt: 1 }}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              sx={{
-                border: `1px solid ${border.primary}`,
-                borderRadius: radiusTokens.sm,
-              }}
-            >
-              <IconButton
-                size="small"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-              >
-                <Subtract16Regular style={{ fontSize: 14 }} />
-              </IconButton>
-              <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  width: 26,
-                  textAlign: "center",
-                }}
-              >
-                {qty}
-              </Typography>
-              <IconButton
-                size="small"
-                onClick={() =>
-                  setQty((q) => Math.min(PRODUCT.stockCount, q + 1))
-                }
-              >
-                <Add16Regular style={{ fontSize: 14 }} />
-              </IconButton>
-            </Stack>
-          </Stack>
-
-          <Stack direction="row" gap={1.2} sx={{ mt: 0.5 }}>
-            <Button
-              onClick={handleCart}
-              fullWidth
-              variant="contained"
-              startIcon={<Cart24Regular />}
-              sx={{
-                borderColor: main.primary,
-                color: main.primary,
-                textTransform: "none",
-                fontFamily: "Poppins",
-                fontWeight: 700,
-                borderRadius: radiusTokens.md,
-                py: 2,
-              }}
-            >
-              Add to Cart
-            </Button>
-          </Stack>
-
-          <DeliveryReturns border={border} fg={fg} main={main} bg={bg} />
-
-          <ShareRow
-            productName={PRODUCT.name}
-            fg={fg}
-            border={border}
-            bg={bg}
-          />
-
-          <Stack direction="row" gap={0.8} flexWrap="wrap">
-            {PAYMENT_METHODS.map((method) => (
-              <Box
-                key={method}
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  color: fg.tertiary,
-                  border: `1px solid ${border.primary}`,
-                  borderRadius: radiusTokens.sm,
-                  px: 0.9,
-                  py: 0.3,
-                }}
-              >
-                {method}
-              </Box>
-            ))}
-          </Stack>
-
-          <Stack direction="row" gap={2.5} sx={{ mt: 0.5 }}>
-            <Stack direction="row" alignItems="center" gap={0.5}>
-              <ShieldCheckmark24Regular
-                style={{ fontSize: 15, color: fg.tertiary }}
-              />
-              <Typography
-                sx={{ fontFamily: "Poppins", fontSize: 11, color: fg.tertiary }}
-              >
-                Secure payment
-              </Typography>
-            </Stack>
-            <Stack direction="row" alignItems="center" gap={0.5}>
-              <ArrowRepeatAll24Regular
-                style={{ fontSize: 15, color: fg.tertiary }}
-              />
-              <Typography
-                sx={{ fontFamily: "Poppins", fontSize: 11, color: fg.tertiary }}
-              >
-                7-day returns
-              </Typography>
-            </Stack>
-          </Stack>
-
-          {/* Single sticky sidebar continues here — same column as everything
-              above, not a second competing sticky element elsewhere on the page. */}
-          <Box
-            sx={{ borderTop: `1px solid ${border.primary}`, mt: 1, pt: 1.5 }}
-          >
-            <ProductInfoSidebarNav
-              activeTab={activeTab}
-              onSelect={setActiveTab}
-              fg={fg}
-              border={border}
-              main={main}
-              bg={bg}
-            />
+          <Box>
+            {galleryBlock}
+            {keyHighlightsBlock}
+            {navAndTabsBlock}
           </Box>
 
-          <ProductSummaryCard
-            product={PRODUCT}
-            fg={fg}
-            border={border}
-            main={main}
-            bg={bg}
-          />
+          <Stack
+            gap={1.2}
+            sx={{
+              position: "sticky",
+              top: spacingTokens.lg,
+              alignSelf: "flex-start",
+            }}
+          >
+            {buyEssentialsBlock}
+            {buyExtraBlock}
+          </Stack>
+        </Box>
+      ) : (
+        <Stack
+          gap={spacingTokens.lg}
+          sx={{ px: spacingTokens.md, py: spacingTokens.lg }}
+        >
+          {galleryBlock}
+          {buyEssentialsBlock}
+          {keyHighlightsBlock}
+          {navAndTabsBlock}
+          {buyExtraBlock}
         </Stack>
-      </Box>
+      )}
 
       {/* related products */}
       <Box sx={{ px: { xs: spacingTokens.md, md: spacingTokens.xl }, pb: 10 }}>
@@ -1330,7 +1377,7 @@ export default function ProductDetailPage() {
           sx={{
             display: "grid",
             gridTemplateColumns: {
-              xs: "repeat(2, 1fr)",
+              xs: "repeat(1, 1fr)",
               sm: "repeat(3, 1fr)",
               lg: "repeat(4, 1fr)",
             },

@@ -45,7 +45,7 @@ export default function Footer() {
           sx={{
             gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "auto" },
             borderRadius: { xs: radiusTokens.md, md: 0 },
-            p: { xs: spacingTokens.md, md: 0 },
+            // p: { xs: spacingTokens.md, md: 0 },
             pr: { md: spacingTokens.lg },
             pb: { xs: spacingTokens.lg, md: 0 },
             mb: { xs: spacingTokens.md, md: 0 },
@@ -144,7 +144,6 @@ export default function Footer() {
         ))}
       </Box>
 
-      {/* Bottom bar */}
       <Box
         sx={{
           backgroundColor: FOOTER_BG_DEEP,

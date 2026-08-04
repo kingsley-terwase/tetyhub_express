@@ -25,11 +25,13 @@ import {
   CartPage,
   CategoryListingPage,
   CheckoutPage,
+  ContactPage,
   FAQPage,
   HomePage,
   HowItWorksPage,
   LoginPage,
   OrderConfirmedPage,
+  PoliciesPage,
   RegisterPage,
   ReportIssuePage,
   ReviewPage,
@@ -77,6 +79,8 @@ export default function Routes() {
         <Route path="/support/report" element={<ReportIssuePage />} />
         <Route path="/support/chat" element={<SupportChatPage />} />
         <Route path="/faq" element={<FAQPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/policies" element={<PoliciesPage />} />
       </Route>
       {/*  */}
       {/* <Route element={<AuthLayout />}> */}

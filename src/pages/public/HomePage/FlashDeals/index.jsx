@@ -1,6 +1,10 @@
 // @ts-nocheck
 import { Box, Stack, Typography } from "@mui/material";
-import { Flash24Filled, ArrowRight24Regular } from "@fluentui/react-icons";
+import {
+  Flash24Filled,
+  ArrowRight24Regular,
+  FlashFilled,
+} from "@fluentui/react-icons";
 import { useColor } from "@/contexts/color";
 import { spacingTokens, radiusTokens } from "@/lib/theme";
 import { useReveal, useCountdown } from "../Hooks";
@@ -228,7 +232,7 @@ export default function FlashDeals() {
           <Box
             className="pulse-badge"
             sx={{
-              width: 36,
+              width: { xs: 60, md: 36 },
               height: 36,
               borderRadius: "50%",
               display: "flex",
@@ -237,7 +241,7 @@ export default function FlashDeals() {
               background: "linear-gradient(135deg, #ef4444, #f97316)",
             }}
           >
-            <Flash24Filled style={{ fontSize: 18, color: "#fff" }} />
+            <FlashFilled style={{ fontSize: 18, color: "#fff" }} />
           </Box>
           <Box>
             <Typography

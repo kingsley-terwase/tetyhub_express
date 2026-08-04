@@ -41,16 +41,18 @@ export default function ProductListingCard({ product }) {
         <Box
           sx={{
             position: "absolute",
-            top: 10,
-            left: 10,
+            top: { xs: 7, sm: 10 },
+            left: { xs: 7, sm: 10 },
             zIndex: 2,
-            px: 1,
+            px: { xs: 0.8, sm: 1 },
             py: 0.3,
             borderRadius: radiusTokens.sm,
             background: "linear-gradient(135deg, #ef4444, #f97316)",
           }}
         >
-          <Typography sx={{ fontSize: 10, fontWeight: 800, color: "#fff" }}>
+          <Typography
+            sx={{ fontSize: { xs: 9, sm: 10 }, fontWeight: 800, color: "#fff" }}
+          >
             -{discount}%
           </Typography>
         </Box>
@@ -60,16 +62,22 @@ export default function ProductListingCard({ product }) {
         <Box
           sx={{
             position: "absolute",
-            top: discount ? 36 : 10,
-            left: 10,
+            top: { xs: discount ? 30 : 7, sm: discount ? 36 : 10 },
+            left: { xs: 7, sm: 10 },
             zIndex: 2,
-            px: 1,
+            px: { xs: 0.8, sm: 1 },
             py: 0.25,
             borderRadius: radiusTokens.sm,
             backgroundColor: main.primary,
           }}
         >
-          <Typography sx={{ fontSize: 9.5, fontWeight: 700, color: "#fff" }}>
+          <Typography
+            sx={{
+              fontSize: { xs: 8.5, sm: 9.5 },
+              fontWeight: 700,
+              color: "#fff",
+            }}
+          >
             Official Store
           </Typography>
         </Box>
@@ -83,9 +91,11 @@ export default function ProductListingCard({ product }) {
         }}
         sx={{
           position: "absolute",
-          top: 6,
-          right: 6,
+          top: { xs: 4, sm: 6 },
+          right: { xs: 4, sm: 6 },
           zIndex: 2,
+          width: { xs: 30, sm: 32 },
+          height: { xs: 30, sm: 32 },
           backgroundColor: "rgba(255,255,255,0.85)",
           "&:hover": { backgroundColor: "#fff" },
         }}
@@ -97,7 +107,13 @@ export default function ProductListingCard({ product }) {
         )}
       </IconButton>
 
-      <Box sx={{ height: 160, overflow: "hidden", backgroundColor: "#fff" }}>
+      <Box
+        sx={{
+          height: { xs: 128, sm: 160 },
+          overflow: "hidden",
+          backgroundColor: "#fff",
+        }}
+      >
         <Box
           component="img"
           className="plc-img"
@@ -114,14 +130,14 @@ export default function ProductListingCard({ product }) {
         />
       </Box>
 
-      <Stack gap={0.6} sx={{ p: 1.5 }}>
+      <Stack gap={{ xs: 0.5, sm: 0.6 }} sx={{ p: { xs: 1.1, sm: 1.5 } }}>
         <Typography
           sx={{
             fontFamily: "Poppins",
-            fontSize: 13,
+            fontSize: { xs: 12, sm: 13 },
             color: fg.primary,
             lineHeight: 1.3,
-            height: 34,
+            height: { xs: 31, sm: 34 },
             overflow: "hidden",
           }}
         >
@@ -132,7 +148,7 @@ export default function ProductListingCard({ product }) {
           <Typography
             sx={{
               fontFamily: "Poppins",
-              fontSize: 16,
+              fontSize: { xs: 14.5, sm: 16 },
               fontWeight: 800,
               color: fg.primary,
             }}
@@ -150,7 +166,7 @@ export default function ProductListingCard({ product }) {
             <Typography
               sx={{
                 fontFamily: "Poppins",
-                fontSize: 12,
+                fontSize: { xs: 11, sm: 12 },
                 color: fg.tertiary,
                 textDecoration: "line-through",
               }}
@@ -160,7 +176,7 @@ export default function ProductListingCard({ product }) {
             <Typography
               sx={{
                 fontFamily: "Poppins",
-                fontSize: 11,
+                fontSize: { xs: 10.5, sm: 11 },
                 fontWeight: 700,
                 color: "#f97316",
               }}
@@ -170,7 +186,7 @@ export default function ProductListingCard({ product }) {
           </Stack>
         )}
 
-        <Stack direction="row" alignItems="center" gap={0.4}>
+        <Stack direction="row" alignItems="center" gap={0.4} flexWrap="wrap">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star24Filled
               key={i}
@@ -181,7 +197,11 @@ export default function ProductListingCard({ product }) {
             />
           ))}
           <Typography
-            sx={{ fontFamily: "Poppins", fontSize: 11, color: fg.tertiary }}
+            sx={{
+              fontFamily: "Poppins",
+              fontSize: { xs: 10.5, sm: 11 },
+              color: fg.tertiary,
+            }}
           >
             ({product.ratingCount.toLocaleString()})
           </Typography>
@@ -193,7 +213,7 @@ export default function ProductListingCard({ product }) {
             <Typography
               sx={{
                 fontFamily: "Poppins",
-                fontSize: 10.5,
+                fontSize: { xs: 10, sm: 10.5 },
                 fontWeight: 700,
                 color: main.primary,
               }}

@@ -6,7 +6,7 @@ export const FOOTER_COLUMNS = [
     links: [
       { label: "About Us", href: "/about" },
       { label: "Contact Us", href: "/contact" },
-      { label: "Careers", href: "/careers" },
+      { label: "FAQ", href: "/faq" },
       { label: "How It Works", href: "/how-it-works" },
     ],
   },
@@ -32,18 +32,15 @@ export const FOOTER_COLUMNS = [
     title: "Resources",
     links: [
       { label: "Help Center", href: "/faq" },
-      { label: "Blog", href: "/blog" },
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms & Conditions", href: "/terms" },
+      { label: "Privacy Policy", href: "/policies" },
+      { label: "Terms & Conditions", href: "/policies" },
     ],
   },
 ];
 
-// Bottom-bar quick links (kept separate from FOOTER_COLUMNS since these
-// render inline, center-aligned, with a divider dot between each).
 export const BOTTOM_LINKS = [
-  { label: "Terms", href: "/terms" },
-  { label: "Privacy", href: "/privacy" },
+  { label: "Terms", href: "/policies" },
+  { label: "Privacy", href: "/policies" },
   { label: "Contact", href: "/contact" },
 ];
 

@@ -19,29 +19,43 @@ export default function KeyHighlights({ product, fg, border, main, bg }) {
         border: `1px solid ${border.primary}`,
         borderRadius: radiusTokens.md,
         backgroundColor: bg.secondary,
-        p: spacingTokens.md,
-        mt: spacingTokens.md,
+        p: { xs: 1.6, sm: spacingTokens.md },
+        mt: { xs: 1.6, sm: spacingTokens.md },
       }}
     >
       <Typography
         sx={{
           fontFamily: "Poppins",
-          fontSize: 12.5,
+          fontSize: { xs: 11.5, sm: 12.5 },
           fontWeight: 700,
           color: fg.secondary,
-          mb: 1.2,
+          mb: { xs: 1, sm: 1.2 },
           textTransform: "uppercase",
           letterSpacing: "0.04em",
         }}
       >
         Key Highlights
       </Typography>
-      <Stack gap={1}>
+
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+          columnGap: { xs: 0, sm: 2 },
+          rowGap: { xs: 0.9, sm: 1 },
+        }}
+      >
         {highlights.map((heading) => (
-          <Stack key={heading} direction="row" alignItems="flex-start" gap={1}>
+          <Stack
+            key={heading}
+            direction="row"
+            alignItems="flex-start"
+            gap={{ xs: 0.8, sm: 1 }}
+            sx={{ minWidth: 0 }}
+          >
             <CheckmarkCircle24Filled
               style={{
-                fontSize: 17,
+                fontSize: 16,
                 color: main.primary,
                 flexShrink: 0,
                 marginTop: 1,
@@ -50,16 +64,18 @@ export default function KeyHighlights({ product, fg, border, main, bg }) {
             <Typography
               sx={{
                 fontFamily: "Poppins",
-                fontSize: 13.5,
+                fontSize: { xs: 12.5, sm: 13.5 },
                 color: fg.primary,
                 lineHeight: 1.5,
+                overflowWrap: "break-word",
+                minWidth: 0,
               }}
             >
               {heading}
             </Typography>
           </Stack>
         ))}
-      </Stack>
+      </Box>
     </Box>
   );
 }
