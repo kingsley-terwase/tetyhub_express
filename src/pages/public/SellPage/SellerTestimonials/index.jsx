@@ -126,24 +126,11 @@ export default function SellerTestimonials() {
       sx={{
         position: "relative",
         px: { xs: 3, md: 8 },
-        py: 8,
+        // py: 8,
+        pb: 8,
         overflow: "hidden",
       }}
     >
-      {/* decorative scalloped divider, echoing the reference */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: -1,
-          left: 0,
-          right: 0,
-          height: 60,
-          backgroundColor: bg.secondary,
-          borderRadius: "0 0 50% 50% / 0 0 100% 100%",
-          opacity: 0.5,
-        }}
-      />
-
       <Stack
         alignItems="center"
         textAlign="center"
@@ -153,7 +140,8 @@ export default function SellerTestimonials() {
         <Typography
           sx={{
             fontSize: { xs: 24, md: 30 },
-            fontWeight: 900,
+            fontWeight: 700,
+            fontFamily: "syne",
             color: fg.primary,
           }}
         >

@@ -162,38 +162,23 @@ export default function CheckoutPage() {
   };
 
   return (
-    <Box sx={{ backgroundColor: bg.primary }}>
+    <Box
+      sx={{ backgroundColor: bg.primary, width: "100%", overflowX: "hidden" }}
+    >
       <Box
         sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            lg: "7.2fr 4.8fr",
-          },
-          gap: {
-            xs: 2,
-            sm: 3,
-            md: 4,
-          },
-          px: {
-            xs: 2,
-            sm: 3,
-            md: spacingTokens.xl,
-          },
-          pb: {
-            xs: 4,
-            md: 8,
-          },
+          px: { xs: 2, sm: 3, md: spacingTokens.xl },
+          pt: { xs: 2, sm: 3, md: spacingTokens.lg },
+          pb: { xs: 1, sm: 1.5, md: 2 },
           maxWidth: 1200,
           mx: "auto",
-          alignItems: "start",
         }}
       >
         <Typography
           sx={{
             fontFamily: "Syne",
             fontWeight: 700,
-            fontSize: { xs: 24, md: 30 },
+            fontSize: { xs: 20, sm: 24, md: 30 },
             color: fg.primary,
           }}
         >
@@ -204,16 +189,26 @@ export default function CheckoutPage() {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "7.2fr 4.8fr" },
-          gap: spacingTokens.xl,
-          px: { xs: spacingTokens.md, md: spacingTokens.xl },
-          pb: { xs: 6, md: 8 },
+          gridTemplateColumns: {
+            xs: "minmax(0, 1fr)",
+            md: "minmax(0, 7.2fr) minmax(0, 4.8fr)",
+          },
+          gap: { xs: 2, sm: spacingTokens.md ?? 2, md: spacingTokens.xl },
+          px: { xs: 2, sm: 3, md: spacingTokens.xl },
+          pb: { xs: 4, sm: 6, md: 8 },
           maxWidth: 1200,
+          width: "100%",
+          boxSizing: "border-box",
           mx: "auto",
+          alignItems: "start",
+          overflowX: "hidden",
         }}
       >
         {/* ---------------- LEFT: steps ---------------- */}
-        <Stack gap={spacingTokens.md} sx={{ minWidth: 0 }}>
+        <Stack
+          gap={{ xs: 1.6, sm: spacingTokens.md ?? 2 }}
+          sx={{ minWidth: 0, order: { xs: 2, md: 1 } }}
+        >
           {/* STEP 1 — contact + address */}
           <StepShell
             number={1}
@@ -226,7 +221,7 @@ export default function CheckoutPage() {
             main={main}
           >
             {!editingContact && contactSaved ? (
-              <Stack gap={0.3} sx={{ pl: 4.4 }}>
+              <Stack gap={0.3} sx={{ pl: { xs: 0, sm: 4.4 } }}>
                 <Typography
                   sx={{ fontSize: 13.5, fontWeight: 700, color: fg.primary }}
                 >
@@ -243,7 +238,11 @@ export default function CheckoutPage() {
               </Stack>
             ) : (
               <Box sx={{}}>
-                <Stack direction={{ xs: "column", sm: "row" }} gap={1.4}>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  gap={1.4}
+                  sx={{ minWidth: 0 }}
+                >
                   <Field
                     label="Full name"
                     value={contact.name}
@@ -298,7 +297,10 @@ export default function CheckoutPage() {
                 <Box
                   onClick={saveContact}
                   sx={{
-                    display: "inline-block",
+                    display: { xs: "flex", sm: "inline-flex" },
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: { xs: "100%", sm: "auto" },
                     mt: 1.8,
                     backgroundColor: contactComplete
                       ? main.primary
@@ -307,6 +309,7 @@ export default function CheckoutPage() {
                     borderRadius: radiusTokens.sm ?? 8,
                     px: 2.4,
                     py: 1,
+                    minHeight: 44,
                     fontSize: 13,
                     fontWeight: 700,
                     fontFamily: "Poppins",
@@ -332,7 +335,7 @@ export default function CheckoutPage() {
             main={main}
           >
             {!editingSchedule && scheduleSaved ? (
-              <Stack gap={0.3} sx={{ pl: 4.4 }}>
+              <Stack gap={0.3} sx={{ pl: { xs: 0, sm: 4.4 } }}>
                 <Typography
                   sx={{ fontSize: 13.5, fontWeight: 700, color: fg.primary }}
                 >
@@ -345,8 +348,12 @@ export default function CheckoutPage() {
                 )}
               </Stack>
             ) : contactSaved ? (
-              <Box sx={{ pl: 4.4 }}>
-                <Stack direction={{ xs: "column", sm: "row" }} gap={1.4}>
+              <Box sx={{ pl: { xs: 0, sm: 4.4 } }}>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  gap={1.4}
+                  sx={{ minWidth: 0 }}
+                >
                   <Field
                     label="Preferred date"
                     value={schedule.date}
@@ -398,7 +405,10 @@ export default function CheckoutPage() {
                 <Box
                   onClick={saveSchedule}
                   sx={{
-                    display: "inline-block",
+                    display: { xs: "flex", sm: "inline-flex" },
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: { xs: "100%", sm: "auto" },
                     mt: 1.8,
                     backgroundColor: scheduleComplete
                       ? main.primary
@@ -407,6 +417,7 @@ export default function CheckoutPage() {
                     borderRadius: radiusTokens.sm ?? 8,
                     px: 2.4,
                     py: 1,
+                    minHeight: 44,
                     fontSize: 13,
                     fontWeight: 700,
                     fontFamily: "Poppins",
@@ -417,7 +428,13 @@ export default function CheckoutPage() {
                 </Box>
               </Box>
             ) : (
-              <Typography sx={{ fontSize: 12.5, color: fg.tertiary, pl: 4.4 }}>
+              <Typography
+                sx={{
+                  fontSize: 12.5,
+                  color: fg.tertiary,
+                  pl: { xs: 0, sm: 4.4 },
+                }}
+              >
                 Add your delivery address first.
               </Typography>
             )}
@@ -436,8 +453,8 @@ export default function CheckoutPage() {
             main={main}
           >
             {scheduleSaved ? (
-              <Box sx={{ pl: 4.4 }}>
-                <Stack gap={1}>
+              <Box sx={{ pl: { xs: 0, sm: 4.4 }, minWidth: 0 }}>
+                <Stack gap={1} sx={{ minWidth: 0 }}>
                   {PAYMENT_METHODS.map((m) => (
                     <Box
                       key={m.key}
@@ -446,6 +463,7 @@ export default function CheckoutPage() {
                         display: "flex",
                         alignItems: "center",
                         gap: 1.2,
+                        minWidth: 0,
                         border: `1px solid ${payment === m.key ? main.primary : border.primary}`,
                         backgroundColor:
                           payment === m.key
@@ -454,6 +472,7 @@ export default function CheckoutPage() {
                         borderRadius: radiusTokens.sm ?? 8,
                         px: 1.6,
                         py: 1.2,
+                        minHeight: 44,
                         cursor: "pointer",
                         transition: "all 0.15s ease",
                       }}
@@ -481,7 +500,7 @@ export default function CheckoutPage() {
                           />
                         )}
                       </Box>
-                      <Stack sx={{ flexGrow: 1 }}>
+                      <Stack sx={{ flexGrow: 1, minWidth: 0 }}>
                         <Typography
                           sx={{
                             fontSize: 13.5,
@@ -511,7 +530,11 @@ export default function CheckoutPage() {
                       full
                       {...{ border, fg }}
                     />
-                    <Stack direction="row" gap={1.4} sx={{ mt: 1.4 }}>
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      gap={1.4}
+                      sx={{ mt: 1.4, minWidth: 0 }}
+                    >
                       <Field
                         label="Expiry"
                         value={card.expiry}
@@ -551,7 +574,13 @@ export default function CheckoutPage() {
                 )}
               </Box>
             ) : (
-              <Typography sx={{ fontSize: 12.5, color: fg.tertiary, pl: 4.4 }}>
+              <Typography
+                sx={{
+                  fontSize: 12.5,
+                  color: fg.tertiary,
+                  pl: { xs: 0, sm: 4.4 },
+                }}
+              >
                 Finish the previous steps to choose a payment method.
               </Typography>
             )}
@@ -561,24 +590,20 @@ export default function CheckoutPage() {
         {/* ---------------- RIGHT: order summary ---------------- */}
         <Box
           sx={{
-            order: {
-              xs: 1,
-              lg: 2,
-            },
-            position: {
-              xs: "static",
-              lg: "sticky",
-            },
+            order: { xs: 1, md: 2 },
+            position: { xs: "static", md: "sticky" },
             top: spacingTokens.lg,
             alignSelf: "flex-start",
+            minWidth: 0,
+            width: "100%",
           }}
         >
           <Box
             sx={{
               border: `1px solid ${border.primary}`,
               borderRadius: radiusTokens.md,
-              p: spacingTokens.md,
-              mb: spacingTokens.md,
+              p: { xs: 1.6, sm: spacingTokens.md ?? 2 },
+              mb: { xs: 2, sm: spacingTokens.md ?? 2 },
             }}
           >
             <Stack
@@ -610,13 +635,14 @@ export default function CheckoutPage() {
               </Typography>
             </Stack>
 
-            <Stack gap={1.2} sx={{ mb: 2 }}>
+            <Stack gap={1.2} sx={{ mb: 2, minWidth: 0 }}>
               {CART_ITEMS.map((it) => (
                 <Stack
                   key={it.id}
                   direction="row"
                   gap={1.2}
                   alignItems="center"
+                  sx={{ minWidth: 0 }}
                 >
                   <Box
                     sx={{
@@ -645,7 +671,10 @@ export default function CheckoutPage() {
                     >
                       {it.title}
                     </Typography>
-                    <Typography sx={{ fontSize: 11, color: fg.tertiary }}>
+                    <Typography
+                      sx={{ fontSize: 11, color: fg.tertiary }}
+                      noWrap
+                    >
                       {it.sellerName} · Qty {it.qty}
                     </Typography>
                   </Stack>
@@ -655,6 +684,7 @@ export default function CheckoutPage() {
                       fontWeight: 700,
                       color: fg.primary,
                       flexShrink: 0,
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {money(it.price * it.qty)}
@@ -706,14 +736,22 @@ export default function CheckoutPage() {
                   px: 1.4,
                   py: 0.9,
                   mb: 1.6,
+                  minWidth: 0,
                 }}
               >
-                <Tag24Regular style={{ fontSize: 16, color: fg.secondary }} />
+                <Tag24Regular
+                  style={{ fontSize: 16, color: fg.secondary, flexShrink: 0 }}
+                />
                 <InputBase
                   value={promoInput}
                   onChange={(e) => setPromoInput(e.target.value)}
                   placeholder="Promo code"
-                  sx={{ fontSize: 12.5, flexGrow: 1, color: fg.primary }}
+                  sx={{
+                    fontSize: 12.5,
+                    flexGrow: 1,
+                    color: fg.primary,
+                    minWidth: 0,
+                  }}
                 />
                 <Typography
                   onClick={() => {
@@ -727,6 +765,7 @@ export default function CheckoutPage() {
                     fontWeight: 700,
                     color: main.primary,
                     cursor: "pointer",
+                    flexShrink: 0,
                   }}
                 >
                   Apply
@@ -781,7 +820,7 @@ export default function CheckoutPage() {
               <Typography
                 sx={{
                   fontFamily: "Poppins",
-                  fontSize: 19,
+                  fontSize: { xs: 17, sm: 19 },
                   fontWeight: 800,
                   color: fg.primary,
                 }}
@@ -838,10 +877,12 @@ export default function CheckoutPage() {
                 color: "#fff",
                 borderRadius: radiusTokens.md,
                 py: 1.4,
+                minHeight: 48,
                 cursor: canPlaceOrder ? "pointer" : "not-allowed",
                 fontFamily: "Poppins",
                 fontWeight: 700,
-                fontSize: 14.5,
+                fontSize: { xs: 13.5, sm: 14.5 },
+                textAlign: "center",
                 opacity: placing ? 0.75 : 1,
                 transition: "transform 0.15s ease, opacity 0.15s ease",
                 "&:hover": canPlaceOrder
@@ -849,8 +890,12 @@ export default function CheckoutPage() {
                   : undefined,
               }}
             >
-              <LockClosed24Regular style={{ fontSize: 17 }} />
-              {placing ? "Placing order..." : `Confirm order · ${money(total)}`}
+              <LockClosed24Regular style={{ fontSize: 17, flexShrink: 0 }} />
+              <Box component="span" sx={{ wordBreak: "break-word" }}>
+                {placing
+                  ? "Placing order..."
+                  : `Confirm order · ${money(total)}`}
+              </Box>
             </Box>
 
             <Typography
@@ -871,7 +916,7 @@ export default function CheckoutPage() {
             sx={{
               border: `1px solid ${border.primary}`,
               borderRadius: radiusTokens.md,
-              p: spacingTokens.md,
+              p: { xs: 1.6, sm: spacingTokens.md ?? 2 },
             }}
           >
             <Stack gap={1.1}>
@@ -927,7 +972,7 @@ function StepShell({
       sx={{
         border: `1px solid ${border.primary}`,
         borderRadius: radiusTokens.md,
-        p: spacingTokens.md,
+        p: { xs: 1.6, sm: spacingTokens.md ?? 2 },
         opacity: disabled ? 0.55 : 1,
         animation: `${fadeUp} 0.3s ease-out both`,
       }}
@@ -936,9 +981,14 @@ function StepShell({
         direction="row"
         alignItems="center"
         justifyContent="space-between"
-        sx={{ mb: editing || !complete ? 1.8 : 0.6 }}
+        sx={{
+          mb: editing || !complete ? 1.8 : 0.6,
+          flexWrap: "wrap",
+          gap: 0.8,
+          minWidth: 0,
+        }}
       >
-        <Stack direction="row" alignItems="center" gap={1}>
+        <Stack direction="row" alignItems="center" gap={1} sx={{ minWidth: 0 }}>
           <Box
             sx={{
               width: 26,
@@ -960,9 +1010,10 @@ function StepShell({
           <Typography
             sx={{
               fontFamily: "Poppins",
-              fontSize: 14,
+              fontSize: { xs: 12.5, sm: 14 },
               fontWeight: 700,
               color: fg.primary,
+              lineHeight: 1.3,
             }}
           >
             {title.toUpperCase()}
@@ -974,7 +1025,7 @@ function StepShell({
             alignItems="center"
             gap={0.4}
             onClick={onChangeClick}
-            sx={{ cursor: "pointer" }}
+            sx={{ cursor: "pointer", flexShrink: 0 }}
           >
             <Edit24Regular style={{ fontSize: 14, color: main.primary }} />
             <Typography
@@ -1019,7 +1070,7 @@ function Field({
   fg,
 }) {
   return (
-    <Stack sx={{ flex: full ? "1 1 100%" : 1, minWidth: 0 }} gap={0.6}>
+    <Stack sx={{ flex: full ? "1 1 100%" : "1 1 0%", minWidth: 0 }} gap={0.6}>
       <Typography sx={{ fontSize: 12, fontWeight: 600, color: fg.secondary }}>
         {label}
       </Typography>
@@ -1032,6 +1083,7 @@ function Field({
           borderRadius: radiusTokens.sm ?? 8,
           px: 1.4,
           py: 1,
+          minHeight: 44,
         }}
       >
         {Icon && (
@@ -1041,7 +1093,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          sx={{ fontSize: 13, flexGrow: 1, color: fg.primary }}
+          sx={{ fontSize: 13, flexGrow: 1, color: fg.primary, minWidth: 0 }}
         />
       </Stack>
     </Stack>
@@ -1050,15 +1102,27 @@ function Field({
 
 function Row({ label, value, fg, accent }) {
   return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between">
+    <Stack
+      direction="row"
+      alignItems="flex-start"
+      justifyContent="space-between"
+      gap={1}
+    >
       <Typography sx={{ fontSize: 13, color: fg.secondary }}>
         {label}
       </Typography>
       <Typography
-        sx={{ fontSize: 13, fontWeight: 700, color: accent ?? fg.primary }}
+        sx={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: accent ?? fg.primary,
+          flexShrink: 0,
+          whiteSpace: "nowrap",
+        }}
       >
         {value}
       </Typography>
     </Stack>
   );
 }
+  

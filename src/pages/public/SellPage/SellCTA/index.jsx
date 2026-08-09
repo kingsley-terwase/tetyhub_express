@@ -27,9 +27,9 @@ export default function SellCTA() {
       >
         <Typography
           sx={{
-            // fontFamily: "Poppins",
+            fontFamily: "syne",
             fontSize: { xs: 24, md: 32 },
-            fontWeight: 800,
+            fontWeight: 700,
             color: "#fff",
           }}
         >

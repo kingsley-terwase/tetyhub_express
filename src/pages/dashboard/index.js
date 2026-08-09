@@ -11,5 +11,13 @@ export { default as EditOrderPage } from "./SellerDashboard/OrderPage/EditOrderP
 export { default as CustomerPage } from "./SellerDashboard/CustomerPage";
 export { default as AddProductsPage } from "./SellerDashboard/ProductsPage/AddProducts";
 export { default as EditProductsPage } from "./SellerDashboard/ProductsPage/EditProducts";
-export { default as SellerAprovalsPage } from "./SellerDashboard/SellerAprovalsPage";
+export { default as SellerAprovalsPage } from "./AdminDashboard/SellerAproval";
 export { default as AdminOverviewPage } from "./AdminDashboard/AdminOverviewPage";
+export { default as ListingModerationPage } from "./AdminDashboard/ListingModerationPage";
+export { default as AdminSettingsPage } from "./AdminDashboard/AdminSettingsPage";
+export { default as AdminOrdersPage } from "./AdminDashboard/Orders";
+export { default as ListingsPage } from "./SellerDashboard/ListingsPage";
+export { default as MessagesPage } from "./SellerDashboard/MessagesPage";
+export { default as PromotionsPage } from "./SellerDashboard/PromotionsPage";
+export { default as ReviewsPage } from "./SellerDashboard/ReviewsPage";
+export { default as SellerSettingsPage } from "./SellerDashboard/SellerSettingsPage";

@@ -18,3 +18,4 @@ export { default as SupportChatPage } from "./SupportChatPage";
 export { default as FAQPage } from "./FAQPage";
 export { default as ContactPage } from "./ContactPage";
 export { default as PoliciesPage } from "./PoliciesPage";
+export { default as AccountPage } from "./AccountPage";

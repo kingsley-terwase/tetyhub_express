@@ -5,8 +5,13 @@ import {
   CubeRegular,
   DocumentLandscapeDataRegular,
   WrenchSettingsRegular,
+  SettingsRegular,
   CircleSparkleRegular,
+  MailRegular,
   ShoppingBagRegular,
+  MegaphoneRegular,
+  ChatRegular,
+  StarRegular,
 } from "@fluentui/react-icons";
 
 /** @type {Record<string, import("@mui/material").ChipProps["color"]>} */
@@ -46,6 +51,54 @@ export const namedRoutes = {
   "/dashboard/admin/seller-approvals": {
     label: "Seller Approvals",
     icon: PersonStarRegular,
+  },
+  "/dashboard/admin/seller-directory": {
+    label: "Seller Directories",
+    icon: PersonStarRegular,
+  },
+  "/dashboard/admin/buyer-directory": {
+    label: "Buyer Directories",
+    icon: PersonStarRegular,
+  },
+  "/dashboard/admin/payments": {
+    label: "Payments",
+    icon: PersonStarRegular,
+  },
+  "/dashboard/admin/promotions": {
+    label: "Promotions",
+    icon: MegaphoneRegular,
+  },
+  "/dashboard/admin/kyc": {
+    label: "Kyc",
+    icon: MegaphoneRegular,
+  },
+  "/dashboard/admin/activity-log": {
+    label: "Activity Log",
+    icon: DocumentLandscapeDataRegular,
+  },
+  "/dashboard/admin/analytics": {
+    label: "Analytics",
+    icon: DocumentLandscapeDataRegular,
+  },
+  "/dashboard/admin/announcements": {
+    label: "Announcements",
+    icon: MegaphoneRegular,
+  },
+  "/dashboard/admin/support-tickets": {
+    label: "Support Tickets",
+    icon: ChatRegular,
+  },
+  "/dashboard/admin/content-management": {
+    label: "Content Management",
+    icon: DocumentLandscapeDataRegular,
+  },
+  "/dashboard/admin/disputes": {
+    label: "Disputes",
+    icon: PersonStarRegular,
+  },
+  "/dashboard/admin/reviews": {
+    label: "Reviews",
+    icon: StarRegular,
   },
   "/dashboard/admin/listing-moderation": {
     label: "Listing Moderation",
@@ -99,9 +152,27 @@ export const namedRoutes = {
     label: "Create Order",
     icon: ShoppingBagRegular,
   },
-  "/dashboard/seller/customers": {
-    label: "Customers",
-    icon: PersonRegular,
+
+  "/dashboard/seller/listings": {
+    label: "Listings",
+    icon: ShoppingBagRegular,
+  },
+
+  "/dashboard/seller/messages": {
+    label: "Messages",
+    icon: MailRegular,
+  },
+  "/dashboard/seller/promotions": {
+    label: "Promotions",
+    icon: MegaphoneRegular,
+  },
+  "/dashboard/seller/reviews": {
+    label: "Reviews",
+    icon: StarRegular,
+  },
+  "/dashboard/seller/seller-settings": {
+    label: "Seller Settings",
+    icon: SettingsRegular,
   },
   "/dashboard/customer": {
     label: "Overview",

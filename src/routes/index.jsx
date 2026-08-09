@@ -1,4 +1,4 @@
-import { DashboardLayout, PublicLayout, SettingsLayout } from "@/layouts";
+import { DashboardLayout, PublicLayout } from "@/layouts";
 import { ResetPasswordPage } from "@/pages/auth";
 import {
   AddProductsPage,
@@ -18,10 +18,19 @@ import {
   SellerAprovalsPage,
   SellerOverviewPage,
   ServicePage,
+  ListingModerationPage,
+  AdminSettingsPage,
+  AdminOrdersPage,
+  ListingsPage,
+  MessagesPage,
+  PromotionsPage,
+  ReviewsPage,
+  SellerSettingsPage,
 } from "@/pages/dashboard";
 import OrderDetail from "@/pages/dashboard/SellerDashboard/OrderPage/OrderDetail";
 import {
   AboutPage,
+  AccountPage,
   CartPage,
   CategoryListingPage,
   CheckoutPage,
@@ -42,11 +51,23 @@ import {
   SupportChatPage,
   TrackOrderPage,
 } from "@/pages/public";
-import { CompanyAccountPage, VendorAccountPage } from "@/pages/settings";
+// import { CompanyAccountPage, VendorAccountPage } from "@/pages/settings";
 import { useAuthStore } from "@/store/auth";
 import { ROLES, SUBROLES } from "@/lib/roles";
 import { Routes as BaseRoutes, Route } from "react-router-dom";
 import ProductDetailPage from "@/pages/public/CategoryListingPage/ProductDetails";
+import SellersDirectory from "@/pages/dashboard/AdminDashboard/SellersDirectory";
+import BuyersDirectoryPage from "@/pages/dashboard/AdminDashboard/BuyersDirectoryPage";
+import DisputesResolutionPage from "@/pages/dashboard/AdminDashboard/DisputesResolutionPage";
+import PaymentsPayoutsPage from "@/pages/dashboard/AdminDashboard/PaymentsPayoutsPage";
+import PromotionsCouponsPage from "@/pages/dashboard/AdminDashboard/PromotionsCouponsPage";
+import ReviewsModerationPage from "@/pages/dashboard/AdminDashboard/ReviewsModerationPage";
+import KYCVerificationPage from "@/pages/dashboard/AdminDashboard/KYCVerificationPage";
+import AdminActivityLogPage from "@/pages/dashboard/AdminDashboard/AdminActivityLogPage";
+import AnalyticsReportsPage from "@/pages/dashboard/AdminDashboard/AnalyticsReportsPage";
+import ContentManagementPage from "@/pages/dashboard/AdminDashboard/ContentManagementPage";
+import AnnouncementsPage from "@/pages/dashboard/AdminDashboard/AnnouncementsPage";
+import SupportTicketsPage from "@/pages/dashboard/AdminDashboard/SupportTicketsPage";
 
 export default function Routes() {
   const { permission } = useAuthStore.getState();
@@ -81,6 +102,7 @@ export default function Routes() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/policies" element={<PoliciesPage />} />
+        <Route path="/account" element={<AccountPage />} />
       </Route>
       {/*  */}
       {/* <Route element={<AuthLayout />}> */}
@@ -133,6 +155,23 @@ export default function Routes() {
               path="/dashboard/seller/customers"
               element={<CustomerPage />}
             />
+            <Route
+              path="/dashboard/seller/listings"
+              element={<ListingsPage />}
+            />
+            <Route
+              path="/dashboard/seller/messages"
+              element={<MessagesPage />}
+            />
+            <Route
+              path="/dashboard/seller/promotions"
+              element={<PromotionsPage />}
+            />
+            <Route path="/dashboard/seller/reviews" element={<ReviewsPage />} />
+            <Route
+              path="/dashboard/seller/seller-settings"
+              element={<SellerSettingsPage />}
+            />
           </>
         )}
 
@@ -153,7 +192,10 @@ export default function Routes() {
         {isAdmin && (
           <>
             <Route path="/dashboard/admin" element={<AdminOverviewPage />} />
-            <Route path="/dashboard/admin/orders" element={<OrderPage />} />
+            <Route
+              path="/dashboard/admin/orders"
+              element={<AdminOrdersPage />}
+            />
             <Route
               path="/dashboard/admin/orders/:id"
               element={<OrderDetail />}
@@ -164,24 +206,76 @@ export default function Routes() {
                   path="/dashboard/admin/seller-approvals"
                   element={<SellerAprovalsPage />}
                 />
-                {/* <Route
-                    path="/dashboard/admin/listing-moderation"
-                    element={<ListingModerationPage />}
-                /> 
-            */}
+                <Route
+                  path="/dashboard/admin/listing-moderation"
+                  element={<ListingModerationPage />}
+                />
+                <Route
+                  path="/dashboard/admin/seller-directory"
+                  element={<SellersDirectory />}
+                />
+                <Route
+                  path="/dashboard/admin/buyer-directory"
+                  element={<BuyersDirectoryPage />}
+                />
+                <Route
+                  path="/dashboard/admin/disputes"
+                  element={<DisputesResolutionPage />}
+                />
+                <Route
+                  path="/dashboard/admin/payments"
+                  element={<PaymentsPayoutsPage />}
+                />
+                <Route
+                  path="/dashboard/admin/promotions"
+                  element={<PromotionsCouponsPage />}
+                />
+                <Route
+                  path="/dashboard/admin/kyc"
+                  element={<KYCVerificationPage />}
+                />
+                <Route
+                  path="/dashboard/admin/activity-log"
+                  element={<AdminActivityLogPage />}
+                />
+                <Route
+                  path="/dashboard/admin/analytics"
+                  element={<AnalyticsReportsPage />}
+                />
+                <Route
+                  path="/dashboard/admin/content-management"
+                  element={<ContentManagementPage />}
+                />
+                <Route
+                  path="/dashboard/admin/announcements"
+                  element={<AnnouncementsPage />}
+                />
+                <Route
+                  path="/dashboard/admin/support-tickets"
+                  element={<SupportTicketsPage />}
+                />
+                <Route
+                  path="/dashboard/admin/reviews"
+                  element={<ReviewsModerationPage />}
+                />
+
+                <Route
+                  path="/dashboard/admin/settings"
+                  element={<AdminSettingsPage />}
+                />
               </>
             )}
           </>
         )}
       </Route>
 
-      <Route element={<SettingsLayout />}>
+      {/* <Route element={<SettingsLayout />}>
         <Route path="/settings/account" element={<VendorAccountPage />} />
         <Route
           path="/settings/company/general"
           element={<CompanyAccountPage />}
         />
-      </Route>
+      </Route> */}
     </BaseRoutes>
   );
 }

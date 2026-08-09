@@ -77,7 +77,7 @@ export default function DashboardLayout() {
             overflowX: "hidden",
             p: spacingTokens.md,
             boxSizing: "border-box",
-            backgroundColor: bg.primary,
+            backgroundColor: bg.dashboard,
           }}
         >
           <Outlet />

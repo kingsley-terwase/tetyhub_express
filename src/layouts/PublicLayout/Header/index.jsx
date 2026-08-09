@@ -58,6 +58,10 @@ export default function Header() {
     navigate("/");
   };
 
+  const handleCart = () => {
+    navigate("/cart");
+  };
+
   return (
     <Box
       component="header"
@@ -179,7 +183,12 @@ export default function Header() {
           alignItems="center"
           sx={{ flexShrink: 0, ml: "auto" }}
         >
-          <IconButton size="small" sx={{ color: fg.primary }} aria-label="Cart">
+          <IconButton
+            onClick={handleCart}
+            size="small"
+            sx={{ color: fg.primary }}
+            aria-label="Cart"
+          >
             <Badge badgeContent={3} color="error">
               <ShoppingBag24Filled style={{ fontSize: 20 }} />
             </Badge>

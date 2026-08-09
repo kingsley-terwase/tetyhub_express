@@ -415,12 +415,14 @@ export const backgroundColors = {
     secondary: "#F9FAFB",
     tertiary: "#FFFFFF",
     quaternary: "#F9FAFB",
+    dashboard: "#fff",
   },
   dark: {
     primary: "#040407",
-    secondary: "#0f0f1a",
+    secondary: "#04040e",
     tertiary: "#040407",
     quaternary: "#12121e",
+    dashboard: "#000",
   },
 };
 

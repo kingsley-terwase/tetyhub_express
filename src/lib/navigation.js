@@ -3,13 +3,28 @@ import { getRoleKey } from "@/lib/roles";
 import {
   DocumentLandscapeDataRegular,
   FormRegular,
-  GlanceRegular,
   SettingsRegular,
   WrenchSettingsRegular,
   CircleSparkleRegular,
   PersonRegular,
+  GlanceRegular,
   PersonStarRegular,
   ShoppingBagRegular,
+  StarRegular,
+  MailRegular,
+  MegaphoneRegular,
+  ChatRegular,
+  GridRegular,
+  PersonAvailableRegular,
+  StoreMicrosoftRegular,
+  ImageMultipleRegular,
+  WalletRegular,
+  WarningRegular,
+  ImageRegular,
+  TagRegular,
+  DocumentTextRegular,
+  HistoryRegular,
+  DataBarVerticalRegular,
 } from "@fluentui/react-icons";
 
 /** @typedef {import("@/types/global.d.js").NavItem & { color?: string }} NavItemProps */
@@ -24,23 +39,106 @@ export function useNavigationMenu() {
   /** @type {Record<string, NavItemProps[]>} */
   const menu = {
     platform_admin: [
-      { label: "Overview", path: "/dashboard/admin", icon: GlanceRegular },
+      {
+        label: "Overview",
+        path: "/dashboard/admin",
+        color: "#fff",
+        icon: GridRegular,
+      },
       {
         label: "Seller Approvals",
         path: "/dashboard/admin/seller-approvals",
-        icon: PersonStarRegular,
+        color: "#ddac0a",
+        icon: PersonAvailableRegular,
+      },
+      {
+        label: "Seller Directories",
+        path: "/dashboard/admin/seller-directory",
+        color: "#F1592A",
+        icon: StoreMicrosoftRegular,
+      },
+      {
+        label: "Buyer Directories",
+        path: "/dashboard/admin/buyer-directory",
+        color: "#ff13a8",
+        icon: PersonRegular,
       },
       {
         label: "Listing Moderation",
         path: "/dashboard/admin/listing-moderation",
-        icon: DocumentLandscapeDataRegular,
+        color: "#4dff00",
+        icon: ImageMultipleRegular,
       },
       {
         label: "Orders",
         path: "/dashboard/admin/orders",
         icon: ShoppingBagRegular,
       },
-      { label: "Settings", path: "/settings/account", icon: SettingsRegular },
+      {
+        label: "Payments",
+        path: "/dashboard/admin/payments",
+        color: "#f717ff",
+        icon: WalletRegular,
+      },
+      {
+        label: "Promotions",
+        path: "/dashboard/admin/promotions",
+        color: "#0cf5f1",
+        icon: TagRegular,
+      },
+      {
+        label: "Kyc",
+        path: "/dashboard/admin/kyc",
+        color: "#b57bc1",
+        icon: DocumentTextRegular,
+      },
+      {
+        label: "Activity Log",
+        path: "/dashboard/admin/activity-log",
+        color: "#f50c8a",
+        icon: HistoryRegular,
+      },
+      {
+        label: "Analytics",
+        path: "/dashboard/admin/analytics",
+        color: "#cd003a",
+        icon: DataBarVerticalRegular,
+      },
+      {
+        label: "Content Management",
+        path: "/dashboard/admin/content-management",
+        color: "#2bff0b",
+        icon: ImageRegular,
+      },
+      {
+        label: "Announcements",
+        path: "/dashboard/admin/announcements",
+        color: "#37aeb9",
+        icon: MegaphoneRegular,
+      },
+      {
+        label: "Disputes",
+        path: "/dashboard/admin/disputes",
+        color: "#db0000",
+        icon: WarningRegular,
+      },
+      {
+        label: "Reviews",
+        path: "/dashboard/admin/reviews",
+        color: "#e9f50c",
+        icon: StarRegular,
+      },
+      {
+        label: "Support Tickets",
+        path: "/dashboard/admin/support-tickets",
+        color: "#a41cff",
+        icon: ChatRegular,
+      },
+      {
+        label: "Settings",
+        path: "/dashboard/admin/settings",
+        icon: SettingsRegular,
+      },
     ],
 
     support_staff: [
@@ -99,6 +197,36 @@ export function useNavigationMenu() {
         color: "#b308de",
         path: "/dashboard/seller/customers",
         icon: PersonRegular,
+      },
+      {
+        label: "Listings",
+        color: "#84f50c",
+        path: "/dashboard/seller/listings",
+        icon: ShoppingBagRegular,
+      },
+      {
+        label: "Messages",
+        color: "#f50cda",
+        path: "/dashboard/seller/messages",
+        icon: MailRegular,
+      },
+      {
+        label: "Promotions",
+        color: "#0cf5f1",
+        path: "/dashboard/seller/promotions",
+        icon: MegaphoneRegular,
+      },
+      {
+        label: "Reviews",
+        color: "#e9f50c",
+        path: "/dashboard/seller/reviews",
+        icon: StarRegular,
+      },
+      {
+        label: "Seller Settings",
+        color: "#f50c5a",
+        path: "/dashboard/seller/seller-settings",
+        icon: SettingsRegular,
       },
     ],
 

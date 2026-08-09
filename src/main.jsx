@@ -9,7 +9,7 @@ import AppLoader from "./Utils/AppLoader";
 useAuthStore.getState().setAuth({
   user: { name: "Test Seller" },
   token: "fake-token",
-  permission: { role_id: 2, subrole_id: null },
+  permission: { role_id: 1, subrole_id: 1 },
 });
 
 function Root() {
