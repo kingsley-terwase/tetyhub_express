@@ -52,7 +52,7 @@ import {
 } from "@/pages/public";
 // import { CompanyAccountPage, VendorAccountPage } from "@/pages/settings";
 import { useAuthStore } from "@/store/auth";
-import { ROLES } from "@/lib/roles";
+import { isAdminRole, isVendorRole, isCustomerRole } from "@/lib/roles";
 import { Routes as BaseRoutes, Route } from "react-router-dom";
 import ProductDetailPage from "@/pages/public/CategoryListingPage/ProductDetails";
 import SellersDirectory from "@/pages/dashboard/AdminDashboard/SellersDirectory";
@@ -72,6 +72,11 @@ import NotFoundPage from "@/pages/public/NotFoundPage";
 import ForgotPasswordPage from "@/pages/public/Auth/ForgotPassword";
 import AdminPermissionsPage from "@/pages/dashboard/AdminDashboard/AdminPermissions";
 import AdminsPage from "@/pages/dashboard/AdminDashboard/Admin";
+import CategoriesPage from "@/pages/dashboard/AdminDashboard/CategoriesPage";
+import SubcategoriesPage from "@/pages/dashboard/AdminDashboard/SubCategoriesPage";
+import ChildCategoriesPage from "@/pages/dashboard/AdminDashboard/ChildCategories";
+import VerifyEmailPage from "@/pages/public/Auth/VerifyEmail";
+import AdminRequestPage from "@/pages/dashboard/AdminDashboard/AdminRequest";
 
 export default function Routes() {
   // Reactive subscription — NOT .getState(). A snapshot read here means this
@@ -81,9 +86,13 @@ export default function Routes() {
   // @ts-ignore
   const permission = useAuthStore((s) => s.permission);
 
-  const isAdmin = permission?.role === ROLES.ADMIN;
-  const isSeller = permission?.role === ROLES.SELLER;
-  const isCustomer = permission?.role === ROLES.CUSTOMER;
+  // isAdminRole/isVendorRole/isCustomerRole group the tiered roles
+  // (super_admin + admin, vendor + vendor_admin) so both get the same
+  // dashboard route tree. Finer-grained access within that tree is handled
+  // separately via Admin Permissions, not here.
+  const isAdmin = isAdminRole(permission);
+  const isVendor = isVendorRole(permission);
+  const isCustomer = isCustomerRole(permission);
 
   return (
     <BaseRoutes>
@@ -114,7 +123,9 @@ export default function Routes() {
       {/* <Route element={<AuthLayout />}> */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/admin/invitations/accept" element={<AdminRequestPage />} />
       {/* <Route path="/password/reset" element={<ResetPasswordPage />} /> */}
       {/* </Route> */}
 
@@ -125,7 +136,7 @@ export default function Routes() {
         <Route element={<DashboardLayout />}>
           {/* <Route path="/design/system" element={<DesignSystemPage />} /> */}
 
-          {isSeller && (
+          {isVendor && (
             <>
               <Route path="/dashboard/seller" element={<SellerOverviewPage />} />
               <Route
@@ -219,6 +230,8 @@ export default function Routes() {
                 path="/dashboard/admin/admin-roles"
                 element={<AdminRolesPage />}
               />
+              <Route path="/dashboard/admin/sub_categories" element={<SubcategoriesPage />} />
+              <Route path="/dashboard/admin/child_categories" element={<ChildCategoriesPage />} />
               <Route
                 path="/dashboard/admin/admin-permissions"
                 element={<AdminPermissionsPage />}
@@ -228,6 +241,10 @@ export default function Routes() {
               <Route
                 path="/dashboard/admin/listing-moderation"
                 element={<ListingModerationPage />}
+              />
+              <Route
+                path="/dashboard/admin/categories"
+                element={<CategoriesPage />}
               />
               <Route
                 path="/dashboard/admin/seller-directory"

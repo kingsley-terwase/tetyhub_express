@@ -14,6 +14,48 @@ function toFormData(payload) {
 }
 const formHeaders = { headers: { "Content-Type": "application/x-www-form-urlencoded" } };
 
+
+export const useAcceptInvitation = () => {
+    const [loading, setLoading] = useState(false);
+    const { success: notifySuccess, error: notifyError } = useNotification();
+
+    const acceptInvitation = async ({ token, password, password_confirmation }) => {
+        setLoading(true);
+        try {
+            if (!token) {
+                notifyError("This invitation link is missing its token");
+                setLoading(false);
+                return { success: false };
+            }
+
+            const response = await axiosInstance.post(
+                "/auth/admin-invitations/accept",
+                toFormData({ token, password, password_confirmation }),
+                formHeaders
+            );
+
+            const { message, success, result } = response.data;
+
+            if (!success) {
+                notifyError(message || "Could not accept invitation");
+                setLoading(false);
+                return { success: false };
+            }
+
+            notifySuccess(message || "Invitation accepted");
+            setLoading(false);
+            return { success: true, result };
+        } catch (error) {
+            notifyError(getErrorMessage(error, "Could not accept invitation"));
+            setLoading(false);
+            return { success: false };
+        }
+    };
+
+    return { acceptInvitation, loading };
+};
+
+
 /** GET /admin/admins?offset=&limit=&search=&status= */
 export const useAdmins = () => {
     const [loading, setLoading] = useState(false);

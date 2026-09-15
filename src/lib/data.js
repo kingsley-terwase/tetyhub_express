@@ -56,6 +56,18 @@ export const namedRoutes = {
     label: "Admin Roles",
     icon: PersonStarRegular,
   },
+  "/dashboard/admin/categories": {
+    label: "Categories",
+    icon: CubeRegular,
+  },
+  "/dashboard/admin/sub_categories": {
+    label: "Subcategories",
+    icon: CubeRegular,
+  },
+  "/dashboard/admin/child_categories": {
+    label: "Child Categories",
+    icon: CubeRegular,
+  },
    "/dashboard/admin/admin-permissions": {
     label: "Admin Permissions",
     icon: PersonStarRegular,

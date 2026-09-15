@@ -124,6 +124,41 @@ export const useSignup = () => {
     return { signup, loading };
 };
 
+
+
+export const useVerifyEmail = () => {
+  const [loading, setLoading] = useState(false);
+  const { success: notifySuccess, error: notifyError } = useNotification();
+
+  const verifyEmail = async ({ email, token }) => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get(
+        `/auth/verify-email?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`
+      );
+
+      const { message, success } = response.data;
+
+      if (!success) {
+        notifyError(message || "Verification failed or link expired");
+        setLoading(false);
+        return { success: false, message };
+      }
+
+      notifySuccess(message || "Email verified successfully");
+      setLoading(false);
+      return { success: true };
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, "Verification failed or link expired");
+      notifyError(errorMessage);
+      setLoading(false);
+      return { success: false, message: errorMessage };
+    }
+  };
+
+  return { verifyEmail, loading };
+};
+
 /** POST /auth/signout */
 export const useLogout = () => {
     const [loading, setLoading] = useState(false);
