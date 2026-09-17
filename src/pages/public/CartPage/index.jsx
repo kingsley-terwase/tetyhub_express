@@ -1,16 +1,14 @@
 // @ts-nocheck
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { keyframes } from "@emotion/react";
-import { Box, Stack, Typography, InputBase } from "@mui/material";
+import { Box, Stack, Typography, InputBase, CircularProgress } from "@mui/material";
 import {
   Delete24Regular,
   Heart24Regular,
-  Heart24Filled,
   LockClosed24Regular,
   ShieldCheckmark24Regular,
   ArrowRight24Regular,
-  ArrowLeft24Regular,
   Tag24Regular,
   CheckmarkCircle24Filled,
   ShoppingBag24Regular,
@@ -18,6 +16,7 @@ import {
 } from "@fluentui/react-icons";
 import { useColor } from "@/contexts/color";
 import { spacingTokens, radiusTokens } from "@/lib/theme";
+import { useCart } from "@/Hooks/cart";
 
 const fadeUp = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -29,139 +28,127 @@ const pop = keyframes`
   100% { transform: scale(1); opacity: 1; }
 `;
 
-// ---- Mock cart state — wire this up to your real cart context/API ----
-const INITIAL_CART = [
-  {
-    id: "c1",
-    sellerId: "s1",
-    sellerName: "SparkleCo",
-    sellerVerified: true,
-    title: "Deep home window cleaning (up to 3 rooms)",
-    variant: "Standard package · 1 visit",
-    image:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=300&q=80",
-    price: 12000,
-    originalPrice: 15000,
-    qty: 1,
-    stock: 6,
-  },
-  {
-    id: "c2",
-    sellerId: "s1",
-    sellerName: "SparkleCo",
-    sellerVerified: true,
-    title: "Add-on: Oven deep clean",
-    variant: "One-time add-on",
-    image:
-      "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?auto=format&fit=crop&w=300&q=80",
-    price: 4500,
-    originalPrice: null,
-    qty: 1,
-    stock: 20,
-  },
-  {
-    id: "c3",
-    sellerId: "s2",
-    sellerName: "Studio Nine",
-    sellerVerified: true,
-    title: "Logo & brand identity design",
-    variant: "3 concepts · unlimited revisions",
-    image:
-      "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=300&q=80",
-    price: 45000,
-    originalPrice: 60000,
-    qty: 1,
-    stock: 3,
-  },
-];
-
-const INITIAL_SAVED = [
-  {
-    id: "sv1",
-    sellerName: "FixIt Technicians",
-    title: "Full home electrical wiring inspection",
-    image:
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=300&q=80",
-    price: 18000,
-  },
-];
-
-const RECOMMENDED = [
-  {
-    id: "r1",
-    title: "Lens & Light Studio — event photography",
-    image:
-      "https://images.unsplash.com/photo-1554080353-a576cf803bda?auto=format&fit=crop&w=400&q=80",
-    price: 25000,
-  },
-  {
-    id: "r2",
-    title: "BrightPath Tutors — WAEC/JAMB home tutoring",
-    image:
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=400&q=80",
-    price: 15000,
-  },
-  {
-    id: "r3",
-    title: "FixIt Technicians — appliance repair",
-    image:
-      "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=400&q=80",
-    price: 8000,
-  },
-  {
-    id: "r4",
-    title: "Studio Nine — social media content pack",
-    image:
-      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=400&q=80",
-    price: 30000,
-  },
-];
-
+// Client-side only — there's no promo-code endpoint in useCart, so this just
+// discounts the locally-known subtotal. Wire this to a real endpoint if/when
+// one exists.
 const PROMO_CODES = {
   WELCOME10: 0.1,
   TETY5: 0.05,
 };
 
-const money = (n) => `₦${n.toLocaleString("en-NG")}`;
+const money = (n) => `₦${Number(n || 0).toLocaleString("en-NG")}`;
+
+// ---------------------------------------------------------------------------
+// Normalization layer
+//
+// The shape of `result` returned by /cart/preview-checkout (and by
+// add/update/remove) isn't fixed in the hook, so this maps a handful of
+// likely field names onto what the UI needs. Trim/extend the `??` chains
+// below to match your actual API contract once you can see a real payload.
+// ---------------------------------------------------------------------------
+function normalizeItem(raw) {
+  return {
+    id: raw.id ?? raw.cart_item_id ?? raw._id,
+    productId: raw.product_id ?? raw.productId,
+    variantId: raw.variant_id ?? raw.variantId ?? null,
+    sellerId: raw.seller_id ?? raw.seller?.id ?? raw.vendor?.id ?? raw.vendor_id ?? "unknown",
+    sellerName: raw.seller_name ?? raw.seller?.name ?? raw.vendor?.name ?? "Seller",
+    sellerVerified:
+      raw.seller_verified ?? raw.seller?.verified ?? raw.vendor?.verified ?? false,
+    title: raw.title ?? raw.name ?? raw.product_name ?? "Item",
+    variant: raw.variant_label ?? raw.variant_name ?? raw.option_label ?? "",
+    image: raw.image ?? raw.thumbnail ?? raw.photo ?? "",
+    price: Number(raw.price ?? raw.unit_price ?? raw.sale_price ?? 0),
+    originalPrice: raw.original_price ?? raw.compare_at_price ?? null,
+    qty: Number(raw.quantity ?? raw.qty ?? 1),
+    stock: Number(raw.stock ?? raw.available_stock ?? raw.max_quantity ?? 99),
+  };
+}
+
+function normalizeCart(cart) {
+  if (!cart) {
+    return { items: [], subtotal: 0, discount: 0, serviceFee: 0, total: 0 };
+  }
+  const rawItems = cart.items ?? cart.cart_items ?? cart.products ?? [];
+  const items = rawItems.map(normalizeItem);
+  const subtotal = cart.subtotal ?? items.reduce((s, it) => s + it.price * it.qty, 0);
+  const discount = cart.discount ?? 0;
+  const serviceFee =
+    cart.service_fee ?? cart.serviceFee ?? Math.round((subtotal - discount) * 0.015);
+  const total = cart.total ?? subtotal - discount + serviceFee;
+  return { items, subtotal, discount, serviceFee, total };
+}
 
 export default function CartPage() {
   const { bg, fg, border, main } = useColor();
   const navigate = useNavigate();
 
-  const [items, setItems] = useState(INITIAL_CART);
-  const [saved, setSaved] = useState(INITIAL_SAVED);
+  const {
+    cart,
+    loading,
+    addToCart,
+    updateCartItem,
+    removeFromCart,
+    fetchCheckoutPreview,
+  } = useCart();
+
+  // "Saved for later" has no backing endpoint in useCart, so it's kept as
+  // client-only state: saving an item removes it from the *server* cart
+  // (via removeFromCart) and holds it in memory here; moving it back calls
+  // addToCart again. It won't survive a refresh — swap in a real
+  // save-for-later endpoint if one gets added later.
+  const [saved, setSaved] = useState([]);
+  const [pendingId, setPendingId] = useState(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
   const [promoInput, setPromoInput] = useState("");
   const [promo, setPromo] = useState(null); // { code, rate }
   const [promoError, setPromoError] = useState("");
 
-  const setQty = (id, delta) =>
-    setItems((prev) =>
-      prev.map((it) =>
-        it.id === id
-          ? { ...it, qty: Math.max(1, Math.min(it.stock, it.qty + delta)) }
-          : it,
-      ),
-    );
+  useEffect(() => {
+    (async () => {
+      await fetchCheckoutPreview();
+      setHasLoaded(true);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const removeItem = (id) =>
-    setItems((prev) => prev.filter((it) => it.id !== id));
+  const { items, subtotal, discount: serverDiscount, serviceFee, total: serverTotal } =
+    useMemo(() => normalizeCart(cart), [cart]);
 
-  const moveToSaved = (id) => {
-    const it = items.find((x) => x.id === id);
-    if (!it) return;
-    setSaved((prev) => [...prev, it]);
-    removeItem(id);
+  const setQty = async (item, delta) => {
+    const newQty = Math.max(1, Math.min(item.stock, item.qty + delta));
+    if (newQty === item.qty) return;
+    setPendingId(item.id);
+    await updateCartItem(item.productId, newQty, item.variantId);
+    setPendingId(null);
   };
 
-  const moveToCart = (id) => {
-    const it = saved.find((x) => x.id === id);
-    if (!it) return;
-    setItems((prev) => [...prev, { ...it, qty: 1, stock: it.stock ?? 10 }]);
-    setSaved((prev) => prev.filter((x) => x.id !== id));
+  const removeItem = async (item) => {
+    setPendingId(item.id);
+    await removeFromCart(item.id);
+    setPendingId(null);
   };
 
-  const removeSaved = (id) =>
-    setSaved((prev) => prev.filter((x) => x.id !== id));
+  const moveToSaved = async (item) => {
+    setPendingId(item.id);
+    const res = await removeFromCart(item.id);
+    if (res.success) {
+      setSaved((prev) => [...prev, item]);
+    }
+    setPendingId(null);
+  };
+
+  const moveToCart = async (item) => {
+    setPendingId(item.id);
+    const res = await addToCart(item.productId, 1, item.variantId);
+    if (res.success) {
+      setSaved((prev) => prev.filter((x) => x.id !== item.id));
+    }
+    setPendingId(null);
+  };
+
+  const removeSaved = (id) => setSaved((prev) => prev.filter((x) => x.id !== id));
 
   const grouped = useMemo(() => {
     const map = new Map();
@@ -179,22 +166,20 @@ export default function CartPage() {
     return [...map.values()];
   }, [items]);
 
-  const subtotal = useMemo(
-    () => items.reduce((sum, it) => sum + it.price * it.qty, 0),
-    [items],
-  );
   const savingsTotal = useMemo(
     () =>
       items.reduce(
-        (sum, it) =>
-          sum + (it.originalPrice ? (it.originalPrice - it.price) * it.qty : 0),
+        (sum, it) => sum + (it.originalPrice ? (it.originalPrice - it.price) * it.qty : 0),
         0,
       ),
     [items],
   );
-  const discount = promo ? Math.round(subtotal * promo.rate) : 0;
-  const serviceFee = Math.round((subtotal - discount) * 0.015);
-  const total = subtotal - discount + serviceFee;
+
+  // Prefer server-computed totals; layer the local promo discount on top
+  // since there's no backend promo endpoint yet.
+  const promoDiscount = promo ? Math.round(subtotal * promo.rate) : 0;
+  const discount = serverDiscount + promoDiscount;
+  const total = Math.max(0, serverTotal - promoDiscount);
   const itemCount = items.reduce((n, it) => n + it.qty, 0);
 
   const applyPromo = () => {
@@ -210,6 +195,29 @@ export default function CartPage() {
     }
   };
 
+  const goToCheckout = async () => {
+    // Refresh totals right before handing off to the checkout page.
+    await fetchCheckoutPreview();
+    navigate("/checkout");
+  };
+
+  // ---------------- INITIAL LOAD ----------------
+  if (loading && !hasLoaded) {
+    return (
+      <Box
+        sx={{
+          backgroundColor: bg.primary,
+          minHeight: "60vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress sx={{ color: main.primary }} />
+      </Box>
+    );
+  }
+
   // ---------------- EMPTY STATE ----------------
   if (items.length === 0) {
     return (
@@ -223,12 +231,7 @@ export default function CartPage() {
           px: spacingTokens.md,
         }}
       >
-        <Stack
-          alignItems="center"
-          textAlign="center"
-          gap={1.5}
-          sx={{ maxWidth: 380 }}
-        >
+        <Stack alignItems="center" textAlign="center" gap={1.5} sx={{ maxWidth: 380 }}>
           <Box
             sx={{
               width: 84,
@@ -245,18 +248,11 @@ export default function CartPage() {
             <ShoppingBag24Regular style={{ fontSize: 36 }} />
           </Box>
           <Typography
-            sx={{
-              fontFamily: "Syne",
-              fontWeight: 700,
-              fontSize: 22,
-              color: fg.primary,
-            }}
+            sx={{ fontFamily: "Syne", fontWeight: 700, fontSize: 22, color: fg.primary }}
           >
             Your cart is empty
           </Typography>
-          <Typography
-            sx={{ fontSize: 14, color: fg.secondary, lineHeight: 1.6 }}
-          >
+          <Typography sx={{ fontSize: 14, color: fg.secondary, lineHeight: 1.6 }}>
             Nothing here yet. Browse verified providers and add a service or
             product to get started.
           </Typography>
@@ -342,9 +338,7 @@ export default function CartPage() {
                 mb: 2.5,
               }}
             >
-              <CheckmarkCircle24Filled
-                style={{ fontSize: 18, color: main.primary }}
-              />
+              <CheckmarkCircle24Filled style={{ fontSize: 18, color: main.primary }} />
               <Typography sx={{ fontSize: 13, color: fg.primary }}>
                 You're saving <b>{money(savingsTotal)}</b> on this order.
               </Typography>
@@ -403,9 +397,7 @@ export default function CartPage() {
                     {group.sellerName}
                   </Typography>
                   {group.sellerVerified && (
-                    <ShieldCheckmark24Regular
-                      style={{ fontSize: 15, color: main.primary }}
-                    />
+                    <ShieldCheckmark24Regular style={{ fontSize: 15, color: main.primary }} />
                   )}
                 </Stack>
                 <Typography sx={{ fontSize: 12, color: fg.tertiary }}>
@@ -414,170 +406,168 @@ export default function CartPage() {
               </Stack>
 
               {/* item rows */}
-              {group.rows.map((it, idx) => (
-                <Stack
-                  key={it.id}
-                  direction={{ xs: "column", sm: "row" }}
-                  gap={1.5}
-                  sx={{
-                    px: 2,
-                    py: 2,
-                    borderBottom:
-                      idx < group.rows.length - 1
-                        ? `1px solid ${border.primary}`
-                        : "none",
-                  }}
-                >
-                  <Box
+              {group.rows.map((it, idx) => {
+                const isPending = pendingId === it.id;
+                return (
+                  <Stack
+                    key={it.id}
+                    direction={{ xs: "column", sm: "row" }}
+                    gap={1.5}
                     sx={{
-                      width: { xs: "100%", sm: 88 },
-                      height: { xs: 140, sm: 88 },
-                      borderRadius: radiusTokens.sm ?? 8,
-                      overflow: "hidden",
-                      flexShrink: 0,
+                      px: 2,
+                      py: 2,
+                      opacity: isPending ? 0.6 : 1,
+                      pointerEvents: isPending ? "none" : "auto",
+                      transition: "opacity 0.15s ease",
+                      borderBottom:
+                        idx < group.rows.length - 1 ? `1px solid ${border.primary}` : "none",
                     }}
                   >
                     <Box
-                      component="img"
-                      src={it.image}
-                      alt={it.title}
-                      sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  </Box>
-
-                  <Stack sx={{ flexGrow: 1, minWidth: 0 }} gap={0.4}>
-                    <Typography
                       sx={{
-                        fontFamily: "Poppins",
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: fg.primary,
-                        lineHeight: 1.35,
+                        width: { xs: "100%", sm: 88 },
+                        height: { xs: 140, sm: 88 },
+                        borderRadius: radiusTokens.sm ?? 8,
+                        overflow: "hidden",
+                        flexShrink: 0,
                       }}
                     >
-                      {it.title}
-                    </Typography>
-                    <Typography sx={{ fontSize: 12, color: fg.tertiary }}>
-                      {it.variant}
-                    </Typography>
+                      <Box
+                        component="img"
+                        src={it.image}
+                        alt={it.title}
+                        sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </Box>
 
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      flexWrap="wrap"
-                      gap={1}
-                      sx={{ mt: 1 }}
-                    >
-                      {/* qty stepper */}
+                    <Stack sx={{ flexGrow: 1, minWidth: 0 }} gap={0.4}>
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins",
+                          fontSize: 14,
+                          fontWeight: 700,
+                          color: fg.primary,
+                          lineHeight: 1.35,
+                        }}
+                      >
+                        {it.title}
+                      </Typography>
+                      <Typography sx={{ fontSize: 12, color: fg.tertiary }}>
+                        {it.variant}
+                      </Typography>
+
                       <Stack
                         direction="row"
                         alignItems="center"
-                        sx={{
-                          border: `1px solid ${border.primary}`,
-                          borderRadius: radiusTokens.sm ?? 8,
-                          overflow: "hidden",
-                        }}
+                        justifyContent="space-between"
+                        flexWrap="wrap"
+                        gap={1}
+                        sx={{ mt: 1 }}
                       >
-                        <Box
-                          onClick={() => setQty(it.id, -1)}
-                          sx={{
-                            width: 28,
-                            height: 28,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            fontSize: 16,
-                            color: fg.secondary,
-                            userSelect: "none",
-                          }}
-                        >
-                          −
-                        </Box>
-                        <Typography
-                          sx={{
-                            width: 30,
-                            textAlign: "center",
-                            fontSize: 13,
-                            fontWeight: 700,
-                            color: fg.primary,
-                          }}
-                        >
-                          {it.qty}
-                        </Typography>
-                        <Box
-                          onClick={() => setQty(it.id, 1)}
-                          sx={{
-                            width: 28,
-                            height: 28,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            fontSize: 16,
-                            color: fg.secondary,
-                            userSelect: "none",
-                          }}
-                        >
-                          +
-                        </Box>
-                      </Stack>
-
-                      {/* actions */}
-                      <Stack direction="row" alignItems="center" gap={1.5}>
+                        {/* qty stepper */}
                         <Stack
                           direction="row"
                           alignItems="center"
-                          gap={0.4}
-                          onClick={() => moveToSaved(it.id)}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          <Heart24Regular
-                            style={{ fontSize: 15, color: fg.tertiary }}
-                          />
-                          <Typography sx={{ fontSize: 12, color: fg.tertiary }}>
-                            Save for later
-                          </Typography>
-                        </Stack>
-                        <Delete24Regular
-                          onClick={() => removeItem(it.id)}
-                          style={{
-                            fontSize: 17,
-                            color: fg.tertiary,
-                            cursor: "pointer",
+                          sx={{
+                            border: `1px solid ${border.primary}`,
+                            borderRadius: radiusTokens.sm ?? 8,
+                            overflow: "hidden",
                           }}
-                        />
-                      </Stack>
-
-                      {/* price */}
-                      <Stack alignItems="flex-end" sx={{ ml: "auto" }}>
-                        {it.originalPrice && (
-                          <Typography
+                        >
+                          <Box
+                            onClick={() => setQty(it, -1)}
                             sx={{
-                              fontSize: 11.5,
-                              color: fg.tertiary,
-                              textDecoration: "line-through",
+                              width: 28,
+                              height: 28,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer",
+                              fontSize: 16,
+                              color: fg.secondary,
+                              userSelect: "none",
                             }}
                           >
-                            {money(it.originalPrice * it.qty)}
+                            −
+                          </Box>
+                          <Typography
+                            sx={{
+                              width: 30,
+                              textAlign: "center",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              color: fg.primary,
+                            }}
+                          >
+                            {it.qty}
                           </Typography>
-                        )}
-                        <Typography
-                          sx={{
-                            fontFamily: "Poppins",
-                            fontSize: 14.5,
-                            fontWeight: 800,
-                            color: fg.primary,
-                          }}
-                        >
-                          {money(it.price * it.qty)}
-                        </Typography>
+                          <Box
+                            onClick={() => setQty(it, 1)}
+                            sx={{
+                              width: 28,
+                              height: 28,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer",
+                              fontSize: 16,
+                              color: fg.secondary,
+                              userSelect: "none",
+                            }}
+                          >
+                            +
+                          </Box>
+                        </Stack>
+
+                        {/* actions */}
+                        <Stack direction="row" alignItems="center" gap={1.5}>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            gap={0.4}
+                            onClick={() => moveToSaved(it)}
+                            sx={{ cursor: "pointer" }}
+                          >
+                            <Heart24Regular style={{ fontSize: 15, color: fg.tertiary }} />
+                            <Typography sx={{ fontSize: 12, color: fg.tertiary }}>
+                              Save for later
+                            </Typography>
+                          </Stack>
+                          <Delete24Regular
+                            onClick={() => removeItem(it)}
+                            style={{ fontSize: 17, color: fg.tertiary, cursor: "pointer" }}
+                          />
+                        </Stack>
+
+                        {/* price */}
+                        <Stack alignItems="flex-end" sx={{ ml: "auto" }}>
+                          {it.originalPrice && (
+                            <Typography
+                              sx={{
+                                fontSize: 11.5,
+                                color: fg.tertiary,
+                                textDecoration: "line-through",
+                              }}
+                            >
+                              {money(it.originalPrice * it.qty)}
+                            </Typography>
+                          )}
+                          <Typography
+                            sx={{
+                              fontFamily: "Poppins",
+                              fontSize: 14.5,
+                              fontWeight: 800,
+                              color: fg.primary,
+                            }}
+                          >
+                            {money(it.price * it.qty)}
+                          </Typography>
+                        </Stack>
                       </Stack>
                     </Stack>
                   </Stack>
-                </Stack>
-              ))}
+                );
+              })}
             </Box>
           ))}
 
@@ -596,80 +586,72 @@ export default function CartPage() {
                 Saved for later ({saved.length})
               </Typography>
               <Stack gap={1.2}>
-                {saved.map((it) => (
-                  <Stack
-                    key={it.id}
-                    direction="row"
-                    gap={1.5}
-                    alignItems="center"
-                    sx={{
-                      border: `1px solid ${border.primary}`,
-                      borderRadius: radiusTokens.md,
-                      p: 1.4,
-                    }}
-                  >
-                    <Box
+                {saved.map((it) => {
+                  const isPending = pendingId === it.id;
+                  return (
+                    <Stack
+                      key={it.id}
+                      direction="row"
+                      gap={1.5}
+                      alignItems="center"
                       sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: radiusTokens.sm ?? 8,
-                        overflow: "hidden",
-                        flexShrink: 0,
+                        border: `1px solid ${border.primary}`,
+                        borderRadius: radiusTokens.md,
+                        p: 1.4,
+                        opacity: isPending ? 0.6 : 1,
+                        pointerEvents: isPending ? "none" : "auto",
                       }}
                     >
                       <Box
-                        component="img"
-                        src={it.image}
                         sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </Box>
-                    <Stack sx={{ flexGrow: 1, minWidth: 0 }}>
-                      <Typography
-                        sx={{
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: fg.primary,
-                          lineHeight: 1.3,
+                          width: 56,
+                          height: 56,
+                          borderRadius: radiusTokens.sm ?? 8,
+                          overflow: "hidden",
+                          flexShrink: 0,
                         }}
                       >
-                        {it.title}
-                      </Typography>
-                      <Typography sx={{ fontSize: 12.5, color: fg.tertiary }}>
-                        {money(it.price)}
-                      </Typography>
+                        <Box
+                          component="img"
+                          src={it.image}
+                          sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </Box>
+                      <Stack sx={{ flexGrow: 1, minWidth: 0 }}>
+                        <Typography
+                          sx={{
+                            fontSize: 13,
+                            fontWeight: 600,
+                            color: fg.primary,
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {it.title}
+                        </Typography>
+                        <Typography sx={{ fontSize: 12.5, color: fg.tertiary }}>
+                          {money(it.price)}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" gap={1.2} alignItems="center" sx={{ flexShrink: 0 }}>
+                        <Typography
+                          onClick={() => moveToCart(it)}
+                          sx={{
+                            fontSize: 12.5,
+                            fontWeight: 700,
+                            color: main.primary,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Move to cart
+                        </Typography>
+                        <Delete24Regular
+                          onClick={() => removeSaved(it.id)}
+                          style={{ fontSize: 16, color: fg.tertiary, cursor: "pointer" }}
+                        />
+                      </Stack>
                     </Stack>
-                    <Stack
-                      direction="row"
-                      gap={1.2}
-                      alignItems="center"
-                      sx={{ flexShrink: 0 }}
-                    >
-                      <Typography
-                        onClick={() => moveToCart(it.id)}
-                        sx={{
-                          fontSize: 12.5,
-                          fontWeight: 700,
-                          color: main.primary,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Move to cart
-                      </Typography>
-                      <Delete24Regular
-                        onClick={() => removeSaved(it.id)}
-                        style={{
-                          fontSize: 16,
-                          color: fg.tertiary,
-                          cursor: "pointer",
-                        }}
-                      />
-                    </Stack>
-                  </Stack>
-                ))}
+                  );
+                })}
               </Stack>
             </Box>
           )}
@@ -749,12 +731,8 @@ export default function CartPage() {
                 gap={0.6}
                 sx={{ mb: 1.6, animation: `${pop} 0.25s ease-out both` }}
               >
-                <CheckmarkCircle24Filled
-                  style={{ fontSize: 15, color: main.primary }}
-                />
-                <Typography
-                  sx={{ fontSize: 12, color: main.primary, fontWeight: 600 }}
-                >
+                <CheckmarkCircle24Filled style={{ fontSize: 15, color: main.primary }} />
+                <Typography sx={{ fontSize: 12, color: main.primary, fontWeight: 600 }}>
                   "{promo.code}" applied — {Math.round(promo.rate * 100)}% off
                 </Typography>
               </Stack>
@@ -777,10 +755,7 @@ export default function CartPage() {
               <Row
                 label={
                   <Stack direction="row" alignItems="center" gap={0.4}>
-                    Service fee{" "}
-                    <Info24Regular
-                      style={{ fontSize: 13, color: fg.tertiary }}
-                    />
+                    Service fee <Info24Regular style={{ fontSize: 13, color: fg.tertiary }} />
                   </Stack>
                 }
                 value={money(serviceFee)}
@@ -795,29 +770,19 @@ export default function CartPage() {
               sx={{ pt: 1.6, borderTop: `1px solid ${border.primary}`, mb: 2 }}
             >
               <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 15,
-                  fontWeight: 800,
-                  color: fg.primary,
-                }}
+                sx={{ fontFamily: "Poppins", fontSize: 15, fontWeight: 800, color: fg.primary }}
               >
                 Total
               </Typography>
               <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 19,
-                  fontWeight: 800,
-                  color: fg.primary,
-                }}
+                sx={{ fontFamily: "Poppins", fontSize: 19, fontWeight: 800, color: fg.primary }}
               >
                 {money(total)}
               </Typography>
             </Stack>
 
             <Box
-              onClick={() => navigate("/checkout")}
+              onClick={goToCheckout}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -827,29 +792,26 @@ export default function CartPage() {
                 color: "#fff",
                 borderRadius: radiusTokens.md,
                 py: 1.4,
-                cursor: "pointer",
+                cursor: loading ? "default" : "pointer",
+                opacity: loading ? 0.7 : 1,
                 fontFamily: "Poppins",
                 fontWeight: 700,
                 fontSize: 14.5,
                 transition: "transform 0.15s ease",
-                "&:hover": { transform: "translateY(-1px)" },
+                "&:hover": loading ? {} : { transform: "translateY(-1px)" },
               }}
             >
-              <LockClosed24Regular style={{ fontSize: 17 }} />
+              {loading ? (
+                <CircularProgress size={16} sx={{ color: "#fff" }} />
+              ) : (
+                <LockClosed24Regular style={{ fontSize: 17 }} />
+              )}
               Proceed to checkout
-              <ArrowRight24Regular style={{ fontSize: 17 }} />
+              {!loading && <ArrowRight24Regular style={{ fontSize: 17 }} />}
             </Box>
 
-            <Typography
-              sx={{
-                fontSize: 11.5,
-                color: fg.tertiary,
-                textAlign: "center",
-                mt: 1.4,
-              }}
-            >
-              Payments are held securely until your booking is confirmed
-              complete.
+            <Typography sx={{ fontSize: 11.5, color: fg.tertiary, textAlign: "center", mt: 1.4 }}>
+              Payments are held securely until your booking is confirmed complete.
             </Typography>
           </Box>
 
@@ -883,9 +845,7 @@ export default function CartPage() {
                   >
                     <Icon style={{ fontSize: 14 }} />
                   </Box>
-                  <Typography sx={{ fontSize: 12, color: fg.secondary }}>
-                    {label}
-                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: fg.secondary }}>{label}</Typography>
                 </Stack>
               ))}
             </Stack>
@@ -910,83 +870,6 @@ export default function CartPage() {
           </Box>
         </Box>
       </Box>
-
-      {/* ---------------- RECOMMENDED ---------------- */}
-      <Box
-        sx={{
-          px: { xs: spacingTokens.md, md: spacingTokens.xl },
-          py: { xs: 5, md: 6 },
-          maxWidth: 1240,
-          mx: "auto",
-        }}
-      >
-        <Typography
-          sx={{
-            fontFamily: "Syne",
-            fontWeight: 800,
-            fontSize: { xs: 19, md: 22 },
-            color: fg.primary,
-            mb: 2.2,
-          }}
-        >
-          You might also like
-        </Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "repeat(2, 1fr)",
-              sm: "repeat(2, 1fr)",
-              md: "repeat(4, 1fr)",
-            },
-            gap: spacingTokens.md,
-          }}
-        >
-          {RECOMMENDED.map((r) => (
-            <Box
-              key={r.id}
-              sx={{
-                border: `1px solid ${border.primary}`,
-                borderRadius: radiusTokens.md,
-                overflow: "hidden",
-                cursor: "pointer",
-                transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                "&:hover": {
-                  transform: "translateY(-3px)",
-                  boxShadow: "0 12px 26px rgba(0,0,0,0.08)",
-                },
-              }}
-            >
-              <Box sx={{ height: 110, overflow: "hidden" }}>
-                <Box
-                  component="img"
-                  src={r.image}
-                  alt={r.title}
-                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </Box>
-              <Box sx={{ p: 1.3 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12.5,
-                    fontWeight: 600,
-                    color: fg.primary,
-                    lineHeight: 1.35,
-                    mb: 0.6,
-                  }}
-                >
-                  {r.title}
-                </Typography>
-                <Typography
-                  sx={{ fontSize: 13, fontWeight: 800, color: fg.primary }}
-                >
-                  {money(r.price)}
-                </Typography>
-              </Box>
-            </Box>
-          ))}
-        </Box>
-      </Box>
     </Box>
   );
 }
@@ -994,12 +877,8 @@ export default function CartPage() {
 function Row({ label, value, fg, accent }) {
   return (
     <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <Typography sx={{ fontSize: 13, color: fg.secondary }}>
-        {label}
-      </Typography>
-      <Typography
-        sx={{ fontSize: 13, fontWeight: 700, color: accent ?? fg.primary }}
-      >
+      <Typography sx={{ fontSize: 13, color: fg.secondary }}>{label}</Typography>
+      <Typography sx={{ fontSize: 13, fontWeight: 700, color: accent ?? fg.primary }}>
         {value}
       </Typography>
     </Stack>

@@ -14,6 +14,7 @@ import {
   MegaphoneRegular,
   ChatRegular,
   GridRegular,
+  CurrencyDollarRupeeRegular,
   PersonAvailableRegular,
   StoreMicrosoftRegular,
   ImageMultipleRegular,
@@ -114,6 +115,12 @@ const MENUS = {
       path: "/dashboard/admin/promotions",
       color: "#0cf5f1",
       icon: TagRegular,
+    },
+    {
+      label: "Currency",
+      path: "/dashboard/admin/currency",
+      color: "#afa652",
+      icon: CurrencyDollarRupeeRegular,
     },
     {
       label: "Kyc",

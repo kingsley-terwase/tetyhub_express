@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Stack,
@@ -9,6 +9,7 @@ import {
   InputBase,
   Slider,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import {
   Search24Regular,
@@ -17,19 +18,12 @@ import {
 } from "@fluentui/react-icons";
 import { useColor } from "@/contexts/color";
 import { radiusTokens } from "@/lib/theme";
+import { usePublicCategories, usePublicSubcategories } from "@/Hooks/public_products";
 
-const CATEGORIES = [
-  "Computing",
-  "Electronics",
-  "Garden & Outdoors",
-  "Phones & Tablets",
-  "Fashion",
-  "Home & Office",
-  "Grocery",
-  "Health & Beauty",
-  "Baby Products",
-];
-
+// No real endpoint for brands, discount buckets, or seller score in the
+// collection — these three sections stay local UI state only. If/when a
+// brand-list or filter endpoint shows up, swap BRANDS for a fetched list
+// the same way CATEGORY below was swapped.
 const BRANDS = ["Adidas", "Samsung", "Nike", "Sony", "LG", "HP"];
 const DISCOUNTS = [
   "50% or more",
@@ -40,7 +34,7 @@ const DISCOUNTS = [
 ];
 const RATINGS = [4, 3, 2, 1];
 
-function SectionLabel({ children, action }) {
+function SectionLabel({ children, action, onAction }) {
   const { fg, main } = useColor();
   return (
     <Stack
@@ -62,6 +56,7 @@ function SectionLabel({ children, action }) {
       </Typography>
       {action && (
         <Typography
+          onClick={onAction}
           sx={{
             fontFamily: "Poppins",
             fontSize: 12,
@@ -90,14 +85,57 @@ function StarRow({ count }) {
   );
 }
 
-export default function CategorySidebar({ activeCategory, onSelectCategory }) {
+const DEFAULT_PRICE_RANGE = [0, 13088243];
+
+/**
+ * `activeCategory` — the currently selected category name (string), same
+ * contract as before.
+ * `activeSubcategory` — optional, the currently selected subcategory slug.
+ * `onSelectCategory(name)` — fires when a category is clicked.
+ * `onSelectSubcategory(slug)` — fires when a subcategory is clicked.
+ * `onFilterChange(filters)` — optional. Fires with
+ * { brands, priceRange, discount, rating } whenever a filter changes, so a
+ * parent page can fold it into fetchProducts(params). Unconfirmed which of
+ * these the backend's /products/search actually accepts as query params —
+ * the collection has no saved example with filters applied. Test each one
+ * (min_price/max_price, brand, discount, rating are the likely names) before
+ * relying on server-side filtering; until confirmed this only reports the
+ * selection upward, it doesn't guarantee the backend acts on it.
+ */
+export default function CategorySidebar({
+  activeCategory,
+  activeSubcategory,
+  onSelectCategory,
+  onSelectSubcategory,
+  onFilterChange,
+}) {
   const { bg, fg, border, main } = useColor();
+
+  const { categories, loading: categoriesLoading, fetchCategories } =
+    usePublicCategories();
+  const {
+    subcategories,
+    loading: subcategoriesLoading,
+    fetchSubcategories,
+  } = usePublicSubcategories();
+
   const [brandSearch, setBrandSearch] = useState("");
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [priceRange, setPriceRange] = useState([205, 13088243]);
+  const [priceRange, setPriceRange] = useState(DEFAULT_PRICE_RANGE);
   const [discount, setDiscount] = useState(null);
   const [rating, setRating] = useState(null);
   const [sellerScore, setSellerScore] = useState("80");
+
+  useEffect(() => {
+    fetchCategories();
+    fetchSubcategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const activeCategoryObj = categories.find((c) => c.name === activeCategory);
+  const relevantSubcategories = activeCategoryObj
+    ? subcategories.filter((s) => s.category_id === activeCategoryObj.id)
+    : [];
 
   const toggleBrand = (b) =>
     setSelectedBrands((prev) =>
@@ -107,6 +145,36 @@ export default function CategorySidebar({ activeCategory, onSelectCategory }) {
   const visibleBrands = BRANDS.filter((b) =>
     b.toLowerCase().includes(brandSearch.toLowerCase()),
   );
+
+  const emitFilterChange = (overrides = {}) => {
+    onFilterChange?.({
+      brands: selectedBrands,
+      priceRange,
+      discount,
+      rating,
+      ...overrides,
+    });
+  };
+
+  const handleApplyPrice = () => emitFilterChange({ priceRange });
+
+  const handleToggleBrand = (b) => {
+    toggleBrand(b);
+    const next = selectedBrands.includes(b)
+      ? selectedBrands.filter((x) => x !== b)
+      : [...selectedBrands, b];
+    emitFilterChange({ brands: next });
+  };
+
+  const handleSelectDiscount = (d) => {
+    setDiscount(d);
+    emitFilterChange({ discount: d });
+  };
+
+  const handleSelectRating = (r) => {
+    setRating(r);
+    emitFilterChange({ rating: r });
+  };
 
   const radioSx = {
     p: 0,
@@ -122,35 +190,76 @@ export default function CategorySidebar({ activeCategory, onSelectCategory }) {
     >
       <Box>
         <SectionLabel>CATEGORY</SectionLabel>
-        <Stack gap={0.3}>
-          {CATEGORIES.map((cat) => {
-            const isActive = cat === activeCategory;
-            return (
-              <Box
-                key={cat}
-                onClick={() => onSelectCategory?.(cat)}
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 13.5,
-                  fontWeight: isActive ? 700 : 500,
-                  color: isActive ? main.primary : fg.secondary,
-                  cursor: "pointer",
-                  py: 0.7,
-                  px: 1,
-                  borderRadius: radiusTokens.sm,
-                  backgroundColor: isActive
-                    ? `${main.primary}12`
-                    : "transparent",
-                  transition: "background-color 0.15s ease, color 0.15s ease",
-                  "&:hover": { backgroundColor: bg.secondary },
-                }}
-              >
-                {cat}
-              </Box>
-            );
-          })}
-        </Stack>
+        {categoriesLoading ? (
+          <CircularProgress size={18} sx={{ color: main.primary }} />
+        ) : (
+          <Stack gap={0.3}>
+            {categories.map((cat) => {
+              const isActive = cat.name === activeCategory;
+              return (
+                <Box
+                  key={cat.id}
+                  onClick={() => onSelectCategory?.(cat.name)}
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontSize: 13.5,
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? main.primary : fg.secondary,
+                    cursor: "pointer",
+                    py: 0.7,
+                    px: 1,
+                    borderRadius: radiusTokens.sm,
+                    backgroundColor: isActive
+                      ? `${main.primary}12`
+                      : "transparent",
+                    transition: "background-color 0.15s ease, color 0.15s ease",
+                    "&:hover": { backgroundColor: bg.secondary },
+                  }}
+                >
+                  {cat.name}
+                </Box>
+              );
+            })}
+          </Stack>
+        )}
       </Box>
+
+      {activeCategoryObj && relevantSubcategories.length > 0 && (
+        <Box sx={{ borderTop: `1px solid ${border.primary}`, pt: 2.5 }}>
+          <SectionLabel>SUBCATEGORY</SectionLabel>
+          {subcategoriesLoading ? (
+            <CircularProgress size={18} sx={{ color: main.primary }} />
+          ) : (
+            <Stack gap={0.3}>
+              {relevantSubcategories.map((sub) => {
+                const isActive = sub.slug === activeSubcategory;
+                return (
+                  <Box
+                    key={sub.id}
+                    onClick={() => onSelectSubcategory?.(sub.slug)}
+                    sx={{
+                      fontFamily: "Poppins",
+                      fontSize: 13,
+                      fontWeight: isActive ? 700 : 500,
+                      color: isActive ? main.primary : fg.secondary,
+                      cursor: "pointer",
+                      py: 0.6,
+                      px: 1,
+                      borderRadius: radiusTokens.sm,
+                      backgroundColor: isActive
+                        ? `${main.primary}12`
+                        : "transparent",
+                      "&:hover": { backgroundColor: bg.secondary },
+                    }}
+                  >
+                    {sub.name}
+                  </Box>
+                );
+              })}
+            </Stack>
+          )}
+        </Box>
+      )}
 
       <Box sx={{ borderTop: `1px solid ${border.primary}`, pt: 2.5 }}>
         <SectionLabel>TETYHUB EXPRESS</SectionLabel>
@@ -216,7 +325,7 @@ export default function CategorySidebar({ activeCategory, onSelectCategory }) {
               direction="row"
               alignItems="center"
               gap={1}
-              onClick={() => toggleBrand(b)}
+              onClick={() => handleToggleBrand(b)}
               sx={{ cursor: "pointer" }}
             >
               <Checkbox
@@ -243,7 +352,9 @@ export default function CategorySidebar({ activeCategory, onSelectCategory }) {
       </Box>
 
       <Box sx={{ borderTop: `1px solid ${border.primary}`, pt: 2.5 }}>
-        <SectionLabel action="Apply">PRICE (₦)</SectionLabel>
+        <SectionLabel action="Apply" onAction={handleApplyPrice}>
+          PRICE (₦)
+        </SectionLabel>
         <Slider
           value={priceRange}
           onChange={(_, v) => setPriceRange(v)}
@@ -303,7 +414,7 @@ export default function CategorySidebar({ activeCategory, onSelectCategory }) {
               direction="row"
               alignItems="center"
               gap={0.8}
-              onClick={() => setDiscount(d)}
+              onClick={() => handleSelectDiscount(d)}
               sx={{ cursor: "pointer" }}
             >
               <Radio size="small" checked={discount === d} sx={radioSx} />
@@ -330,7 +441,7 @@ export default function CategorySidebar({ activeCategory, onSelectCategory }) {
               direction="row"
               alignItems="center"
               gap={0.8}
-              onClick={() => setRating(r)}
+              onClick={() => handleSelectRating(r)}
               sx={{ cursor: "pointer" }}
             >
               <Radio size="small" checked={rating === r} sx={radioSx} />
@@ -350,7 +461,9 @@ export default function CategorySidebar({ activeCategory, onSelectCategory }) {
       </Box>
 
       <Box sx={{ borderTop: `1px solid ${border.primary}`, pt: 2.5 }}>
-        <SectionLabel action="Reset">SELLER SCORE</SectionLabel>
+        <SectionLabel action="Reset" onAction={() => setSellerScore("80")}>
+          SELLER SCORE
+        </SectionLabel>
         <Stack
           direction="row"
           alignItems="center"

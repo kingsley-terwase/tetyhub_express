@@ -15,9 +15,21 @@ export default function ProductListingCard({ product }) {
   const { bg, fg, border, main } = useColor();
   const navigate = useNavigate();
   const [wishlisted, setWishlisted] = useState(false);
-  const discount = product.originalPrice
-    ? Math.round(100 - (product.price / product.originalPrice) * 100)
+
+  // API fields: price/compare_at_price come back as strings, and discount
+  // is precomputed server-side — use it if present, only fall back to
+  // computing it ourselves if the backend didn't send one.
+  const price = Number(product.price) || 0;
+  const originalPrice = product.compare_at_price
+    ? Number(product.compare_at_price)
     : null;
+  const discount =
+    product.discount ??
+    (originalPrice ? Math.round(100 - (price / originalPrice) * 100) : null);
+
+  const image = product.thumbnail || product.images?.[0]?.url;
+  const rating = product.avg_rating ? Number(product.avg_rating) : 0;
+  const ratingCount = product.review_count || 0;
 
   return (
     <Box
@@ -58,7 +70,7 @@ export default function ProductListingCard({ product }) {
         </Box>
       )}
 
-      {product.official && (
+      {product.free_shipping && (
         <Box
           sx={{
             position: "absolute",
@@ -78,7 +90,7 @@ export default function ProductListingCard({ product }) {
               color: "#fff",
             }}
           >
-            Official Store
+            Free Shipping
           </Typography>
         </Box>
       )}
@@ -88,6 +100,8 @@ export default function ProductListingCard({ product }) {
         onClick={(e) => {
           e.stopPropagation();
           setWishlisted((w) => !w);
+          // No wishlist endpoint in the collection yet — this is local-only
+          // for now. Send me that route when it exists and I'll wire it up.
         }}
         sx={{
           position: "absolute",
@@ -117,7 +131,7 @@ export default function ProductListingCard({ product }) {
         <Box
           component="img"
           className="plc-img"
-          src={product.image}
+          src={image}
           alt={product.name}
           loading="lazy"
           sx={{
@@ -153,10 +167,10 @@ export default function ProductListingCard({ product }) {
               color: fg.primary,
             }}
           >
-            ₦{product.price.toLocaleString()}
+            ₦{price.toLocaleString()}
           </Typography>
         </Stack>
-        {product.originalPrice && (
+        {originalPrice && (
           <Stack
             direction="row"
             alignItems="center"
@@ -171,7 +185,7 @@ export default function ProductListingCard({ product }) {
                 textDecoration: "line-through",
               }}
             >
-              ₦{product.originalPrice.toLocaleString()}
+              ₦{originalPrice.toLocaleString()}
             </Typography>
             <Typography
               sx={{
@@ -192,7 +206,7 @@ export default function ProductListingCard({ product }) {
               key={i}
               style={{
                 fontSize: 12,
-                color: i < Math.round(product.rating) ? "#f5a623" : "#d1d5db",
+                color: i < Math.round(rating) ? "#f5a623" : "#d1d5db",
               }}
             />
           ))}
@@ -203,11 +217,11 @@ export default function ProductListingCard({ product }) {
               color: fg.tertiary,
             }}
           >
-            ({product.ratingCount.toLocaleString()})
+            ({ratingCount.toLocaleString()})
           </Typography>
         </Stack>
 
-        {product.express && (
+        {product.is_featured && (
           <Stack direction="row" alignItems="center" gap={0.4} sx={{ mt: 0.3 }}>
             <Flash20Filled style={{ fontSize: 12, color: main.primary }} />
             <Typography

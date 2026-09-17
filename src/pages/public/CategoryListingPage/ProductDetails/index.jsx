@@ -1,17 +1,17 @@
 // @ts-nocheck
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Stack,
   Typography,
   Button,
   IconButton,
-  InputBase,
   Select,
   MenuItem,
   useTheme,
   useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 import {
   Heart24Regular,
@@ -41,290 +41,121 @@ import KeyHighlights from "./KeyHighlights";
 import facebookIcon from "/Image/fb.png";
 import twitterIcon from "/Image/x.png";
 import whatsappIcon from "/Image/whatsapp.png";
-import ProductSummaryCard from "./ProductSummaryCard"
-
-const DEFAULT_PRODUCT = {
-  id: 1,
-  name: "GALUIN Men's Comfortable Running Shoes, Stylish Low-Top Casual Sports Shoes",
-  seller: "GALUIN",
-  official: true,
-  price: 12240,
-  originalPrice: 14400,
-  rating: 4,
-  ratingCount: 248,
-  stockCount: 6,
-  category: "Fashion",
-  images: [
-    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=75",
-    "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=700&q=75",
-    "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=700&q=75",
-    "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=700&q=75",
-  ],
-  sizes: ["EU 40", "EU 41", "EU 42", "EU 43", "EU 44"],
-  descriptionSections: [
-    {
-      heading: "Breathable mesh upper for all-day comfort",
-      body: "The engineered mesh upper flexes with your foot and lets air circulate with every step, so your feet stay cool through a full day of wear — whether that's a walk across town, a light gym session, or just standing at a market stall for hours.",
-    },
-    {
-      heading: "Lightweight cushioned midsole",
-      body: "A soft, responsive foam midsole absorbs impact on hard pavement without weighing the shoe down. You get the kind of step-in comfort that usually only shows up in shoes twice this price.",
-    },
-    {
-      heading: "Durable rubber outsole with reinforced grip",
-      body: "A textured rubber outsole grips wet tile, loose gravel, and painted concrete alike, with reinforced high-wear zones at the heel and forefoot so the tread doesn't flatten out after a few months of daily use.",
-    },
-    {
-      heading: "Versatile enough for everyday wear",
-      body: "The low-top silhouette and neutral colorway pair as easily with jeans and a t-shirt as they do with joggers, making this a genuine one-shoe-does-it-all option rather than a single-occasion sneaker.",
-    },
-    {
-      heading: "True to size",
-      body: "Runs true to standard EU sizing. If you're between two sizes or have a wider foot, we recommend sizing up half a size for a more comfortable fit.",
-    },
-    {
-      heading: "Care instructions",
-      body: "Wipe the mesh upper with a damp cloth and mild soap; avoid machine washing, which can loosen the bonded sole over time. Air dry away from direct heat or sunlight.",
-    },
-  ],
-  specs: [
-    ["Brand", "GALUIN"],
-    ["Model", "GX-402 Low-Top"],
-    ["Category", "Men's Running Shoes"],
-    ["Upper Material", "Engineered mesh"],
-    ["Sole Material", "Rubber"],
-    ["Closure Type", "Lace-up"],
-    ["Available Sizes", "EU 40 – EU 44"],
-    ["Available Colors", "Black, Grey, Navy"],
-    ["Weight (per shoe)", "≈ 280g (size EU 42)"],
-    ["Gender", "Men's"],
-    ["Country of Origin", "Vietnam"],
-    ["Warranty", "6 months against manufacturing defects"],
-    ["Package Contents", "1 × pair of shoes, 1 × spare lace set"],
-  ],
-  sellerInfo: {
-    name: "GALUIN Official Store",
-    rating: 4.6,
-    responseRate: 96,
-    followers: 12400,
-  },
-  ratingBreakdown: [
-    { stars: 5, percent: 68 },
-    { stars: 4, percent: 20 },
-    { stars: 3, percent: 7 },
-    { stars: 2, percent: 3 },
-    { stars: 1, percent: 2 },
-  ],
-  reviews: [
-    {
-      name: "Chidinma A.",
-      rating: 5,
-      date: "18-07-2026",
-      verified: true,
-      comment:
-        "Genuinely comfortable from the first wear, no breaking-in period needed. I've worn these to work three days a week for a month and the sole shows zero wear yet.",
-    },
-    {
-      name: "Emeka O.",
-      rating: 4,
-      date: "12-07-2026",
-      verified: true,
-      comment:
-        "Good shoe for the price. Sizing ran slightly small for me — I'd recommend going half a size up if you're in between sizes.",
-    },
-    {
-      name: "Blessing N.",
-      rating: 5,
-      date: "05-07-2026",
-      verified: true,
-      comment:
-        "Bought this for my husband and he won't stop wearing them. Breathable, lightweight, and the grey colorway matches everything.",
-    },
-    {
-      name: "Tunde F.",
-      rating: 3,
-      date: "28-06-2026",
-      verified: false,
-      comment:
-        "Decent shoe but the laces that came with it were shorter than expected. Had to buy a replacement pair separately.",
-    },
-    {
-      name: "Ngozi K.",
-      rating: 5,
-      date: "20-06-2026",
-      verified: true,
-      comment:
-        "Delivery was fast and the shoes matched the photos exactly. Very happy with this purchase, will buy another color.",
-    },
-  ],
-};
-
-const RELATED = [
-  {
-    id: 2,
-    category: "Fashion",
-    name: "Classic Canvas Sneakers, All White",
-    price: 9800,
-    originalPrice: 13500,
-    rating: 4,
-    ratingCount: 3210,
-    official: true,
-    express: true,
-    image:
-      "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=400&q=70",
-  },
-  {
-    id: 3,
-    category: "Fashion",
-    name: "High-Top Basketball Shoes, Grip Sole",
-    price: 24000,
-    originalPrice: 29900,
-    rating: 5,
-    ratingCount: 1540,
-    official: true,
-    express: true,
-    image:
-      "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=400&q=70",
-  },
-  {
-    id: 4,
-    category: "Fashion",
-    name: "Slip-On Loafers, Everyday Comfort",
-    price: 11200,
-    originalPrice: null,
-    rating: 4,
-    ratingCount: 890,
-    official: false,
-    express: true,
-    image:
-      "https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=400&q=70",
-  },
-  {
-    id: 5,
-    category: "Fashion",
-    name: "Trail Running Shoes, Water Resistant",
-    price: 27500,
-    originalPrice: 33000,
-    rating: 4,
-    ratingCount: 2670,
-    official: true,
-    express: false,
-    image:
-      "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&w=400&q=70",
-  },
-];
+import ProductSummaryCard from "./ProductSummaryCard";
+import { usePublicProduct, useRelatedProducts } from "@/Hooks/public_products";
+import { useCart } from "@/Hooks/cart";
 
 const PAYMENT_METHODS = ["Card", "Pay on Delivery", "Bank Transfer"];
 
-const GENERIC_REVIEWERS = [
-  { name: "Adaeze O.", verified: true },
-  { name: "Ibrahim S.", verified: true },
-  { name: "Chiamaka U.", verified: false },
-  { name: "Segun A.", verified: true },
+// No reviews/ratings-breakdown/seller endpoint exists anywhere in the
+// collection. Rather than silently fake-wire these to something that
+// doesn't exist, they stay as clearly-labelled placeholders until a real
+// endpoint shows up. Swap MOCK_REVIEWS/MOCK_SELLER_INFO/MOCK_RATING_BREAKDOWN
+// for real hook data the same way `product` below was swapped in.
+const MOCK_SELLER_INFO = {
+  name: "Marketplace Seller",
+  rating: 4.5,
+  responseRate: 90,
+  followers: 1000,
+};
+const MOCK_RATING_BREAKDOWN = [
+  { stars: 5, percent: 60 },
+  { stars: 4, percent: 25 },
+  { stars: 3, percent: 8 },
+  { stars: 2, percent: 4 },
+  { stars: 1, percent: 3 },
 ];
-const GENERIC_COMMENTS = [
-  "Arrived faster than I expected and exactly as described in the listing photos. No complaints.",
-  "Good value for the price. Would buy from this seller again without hesitation.",
-  "Does the job well. Packaging could be a bit sturdier, but the product itself is solid.",
-  "Really happy with this — matches the description, and customer support responded quickly when I had a question before ordering.",
+const MOCK_REVIEWS = [
+  {
+    name: "Adaeze O.",
+    verified: true,
+    rating: 5,
+    date: "12-09-2026",
+    comment:
+      "Arrived faster than I expected and exactly as described in the listing photos. No complaints.",
+  },
+  {
+    name: "Ibrahim S.",
+    verified: true,
+    rating: 4,
+    date: "06-09-2026",
+    comment:
+      "Good value for the price. Would buy from this seller again without hesitation.",
+  },
 ];
 
-function buildDetailFromListing(listing) {
-  const sellerLabel = listing.official
-    ? "Official Store"
-    : "Marketplace Seller";
+/**
+ * Maps the real API product shape onto the fields this page's JSX expects.
+ * Centralised here so the rest of the component can keep reading
+ * PRODUCT.price / PRODUCT.images / etc. without caring about the API's
+ * actual field names (price as a string, images as objects, etc).
+ */
+function mapApiProduct(p) {
+  const price = Number(p.price) || 0;
+  const originalPrice = p.compare_at_price ? Number(p.compare_at_price) : null;
+
+  const images =
+    p.images?.length > 0
+      ? p.images
+          .slice()
+          .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+          .map((img) => img.url)
+      : p.thumbnail
+      ? [p.thumbnail]
+      : [];
+
+  // No dedicated "size" concept in the API — if this product has variants,
+  // surface them as selectable options using whatever label is available
+  // (variant.name, falling back to its SKU since name was null in the
+  // sample response). If your variants actually carry proper size/color
+  // data via option_values, swap this line to read from there instead.
+  const sizes =
+    p.has_variants && p.variants?.length > 0
+      ? p.variants.map((v) => v.name || v.sku)
+      : [];
+
+  const specs = [
+    ["Brand", p.brand],
+    ["SKU", p.sku],
+    ["Category", p.category_name],
+    p.subcategory_name && ["Subcategory", p.subcategory_name],
+    ["Weight", p.weight ? `${p.weight}kg` : null],
+    p.length &&
+      p.width &&
+      p.height && [
+        "Dimensions",
+        `${p.length} × ${p.width} × ${p.height} cm`,
+      ],
+    ["Free shipping", p.free_shipping ? "Yes" : "No"],
+    ["Condition", "New"],
+  ].filter((row) => row && row[1]);
 
   return {
-    id: listing.id,
-    name: listing.name,
-    seller: sellerLabel,
-    official: listing.official,
-    price: listing.price,
-    originalPrice: listing.originalPrice,
-    rating: listing.rating,
-    ratingCount: listing.ratingCount,
-    stockCount: 8,
-    category: listing.category,
-    images: [listing.image, listing.image, listing.image],
-    sizes:
-      listing.category === "Fashion"
-        ? ["EU 40", "EU 41", "EU 42", "EU 43", "EU 44"]
-        : [],
-    descriptionSections: [
-      {
-        heading: `What makes this ${listing.category.toLowerCase()} pick worth it`,
-        body: `${listing.name} is fulfilled by a ${sellerLabel.toLowerCase()} on TETYHUB, meaning it's passed our seller verification before ever reaching the marketplace. Every order is backed by buyer protection — your payment is only released to the seller once you've confirmed delivery.`,
-      },
-      {
-        heading: "Built for everyday use",
-        body: `Whether you're buying this for daily use or as a one-off pickup, it's selected to hold up under regular, real-world conditions — not just look good in a listing photo.`,
-      },
-      {
-        heading: listing.express
-          ? "Fast, trackable delivery"
-          : "Delivery you can plan around",
-        body: listing.express
-          ? "This item qualifies for TETYHUB Express — expect faster dispatch and a live tracking link the moment your order is confirmed."
-          : "Standard delivery timelines apply to this item — you'll get an estimated delivery window at checkout based on your location.",
-      },
-      {
-        heading: "What's in the box",
-        body: "The product ships exactly as shown in the listing photos, along with any standard accessories included by the manufacturer. Check the Specifications tab for exact package contents where available.",
-      },
-    ],
-    specs: [
-      ["Category", listing.category],
-      ["Fulfilled by", sellerLabel],
-      ["Express delivery", listing.express ? "Available" : "Not available"],
-      ["Condition", "New"],
-      [
-        "Warranty",
-        listing.official
-          ? "6 months, seller-backed"
-          : "Standard TETYHUB buyer protection",
-      ],
-      ["Return window", "7 days from delivery"],
-      ["Country of Origin", "Varies by seller — see product listing"],
-      ["Package Contents", "1 × item as shown in listing photos"],
-    ],
-    sellerInfo: {
-      name: listing.official
-        ? `${listing.category} Official Store`
-        : `${listing.category} Seller`,
-      rating: 4.5,
-      responseRate: 90,
-      followers: 1000,
-    },
-    ratingBreakdown: [
-      { stars: 5, percent: 60 },
-      { stars: 4, percent: 25 },
-      { stars: 3, percent: 8 },
-      { stars: 2, percent: 4 },
-      { stars: 1, percent: 3 },
-    ],
-    reviews: GENERIC_REVIEWERS.map((reviewer, i) => ({
-      name: reviewer.name,
-      verified: reviewer.verified,
-      rating: Math.max(3, Math.min(5, listing.rating - (i % 2))),
-      date: new Date(Date.now() - (i + 1) * 6 * 86_400_000).toLocaleDateString(
-        "en-GB",
-        {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        },
-      ),
-      comment: GENERIC_COMMENTS[i % GENERIC_COMMENTS.length],
-    })),
+    id: p.id,
+    name: p.name,
+    price,
+    originalPrice,
+    rating: p.avg_rating ? Number(p.avg_rating) : 0,
+    ratingCount: p.review_count || 0,
+    stockCount: p.stock ?? 0,
+    trackInventory: p.track_inventory,
+    category: p.category_name || "Products",
+    images: images.length > 0 ? images : ["/Image/placeholder-product.png"],
+    sizes,
+    hasVariants: p.has_variants,
+    variants: p.variants || [],
+    description: p.description,
+    shortDescription: p.short_description,
+    specs,
+    isFeatured: p.is_featured,
+    freeShipping: p.free_shipping,
+    official: false, // no "official store" concept in the API yet
   };
 }
 
 function SellerCard({ info, border, fg, main, bg }) {
   const navigate = useNavigate();
-
-  const handleStore = () => {
-    navigate("/store");
-  };
+  const handleStore = () => navigate("/store");
 
   return (
     <Stack
@@ -405,7 +236,7 @@ function SellerCard({ info, border, fg, main, bg }) {
   );
 }
 
-// Placeholder logistics data until a real delivery-zones API exists.
+// Placeholder logistics data — no delivery-zones API exists in the collection.
 const STATES = ["Lagos", "Abuja", "Rivers", "Oyo"];
 const AREAS_BY_STATE = {
   Lagos: ["Lekki-Ajah (Sangotedo)", "Ikeja", "Surulere", "Yaba"],
@@ -597,8 +428,6 @@ function DeliveryReturns({ border, fg, main, bg }) {
         </Typography>
       </Stack>
 
-      {/* Stacks vertically at very narrow widths instead of cramming two
-          selects side by side */}
       <Stack direction={{ xs: "column", sm: "row" }} gap={1} sx={{ mb: 1.4 }}>
         <Select
           size="small"
@@ -819,46 +648,91 @@ function ShareRow({ productName, fg, border, bg }) {
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const { bg, fg, border, main } = useColor();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+  const { product: rawProduct, loading, notFound, fetchProduct } = usePublicProduct();
+  const { products: relatedRaw, fetchRelated } = useRelatedProducts();
+  const { addToCart, loading: addingToCart } = useCart();
+
+  useEffect(() => {
+    if (id) fetchProduct(id);
+  }, [id, fetchProduct]);
+
+  useEffect(() => {
+    if (id) fetchRelated(id);
+  }, [id, fetchRelated]);
+
+  const PRODUCT = rawProduct ? mapApiProduct(rawProduct) : null;
+
+  const [activeImage, setActiveImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedVariantId, setSelectedVariantId] = useState(null);
+  const [qty, setQty] = useState(1);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [activeTab, setActiveTab] = useState("description");
+
+  // Reset per-product UI state whenever we land on a different product.
+  useEffect(() => {
+    if (!PRODUCT) return;
+    setActiveImage(0);
+    setQty(1);
+    setWishlisted(false);
+    setActiveTab("description");
+    if (PRODUCT.hasVariants && PRODUCT.variants.length > 0) {
+      setSelectedSize(PRODUCT.sizes[0]);
+      setSelectedVariantId(PRODUCT.variants[0].id);
+    } else {
+      setSelectedSize(null);
+      setSelectedVariantId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [PRODUCT?.id]);
+
+  const handleSelectSize = (size, index) => {
+    setSelectedSize(size);
+    setSelectedVariantId(PRODUCT.variants[index]?.id ?? null);
+  };
 
   const handleCart = () => {
     navigate("/cart");
   };
 
-  const listingProduct = location.state?.product;
-  const PRODUCT = useMemo(
-    () =>
-      listingProduct ? buildDetailFromListing(listingProduct) : DEFAULT_PRODUCT,
-    [listingProduct],
-  );
+  const handleAddToCart = () => {
+    if (!PRODUCT) return;
+    addToCart(PRODUCT.id, qty, selectedVariantId);
+  };
 
-  const [activeImage, setActiveImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(PRODUCT.sizes?.[0] ?? null);
-  const [qty, setQty] = useState(1);
-  const [wishlisted, setWishlisted] = useState(false);
-  const [activeTab, setActiveTab] = useState("description");
+  if (loading && !PRODUCT) {
+    return (
+      <Stack alignItems="center" sx={{ py: 12 }}>
+        <CircularProgress sx={{ color: main.primary }} />
+      </Stack>
+    );
+  }
 
-  useEffect(() => {
-    setActiveImage(0);
-    setQty(1);
-    setWishlisted(false);
-    setSelectedSize(PRODUCT.sizes?.[0] ?? null);
-    setActiveTab("description");
-  }, [PRODUCT.id]);
+  if (notFound || !PRODUCT) {
+    return (
+      <Stack alignItems="center" gap={1} sx={{ py: 12 }}>
+        <Typography
+          sx={{ fontFamily: "Poppins", fontSize: 16, fontWeight: 700, color: fg.primary }}
+        >
+          Product not found
+        </Typography>
+        <Typography
+          onClick={() => navigate("/")}
+          sx={{ fontFamily: "Poppins", fontSize: 13, color: main.primary, cursor: "pointer" }}
+        >
+          Back to home
+        </Typography>
+      </Stack>
+    );
+  }
 
   const discount = PRODUCT.originalPrice
     ? Math.round(100 - (PRODUCT.price / PRODUCT.originalPrice) * 100)
     : null;
-
-  // ---------------------------------------------------------------------
-  // Content is split into named blocks (instead of two hardcoded columns)
-  // so mobile and desktop can put them in a completely different order
-  // without duplicating any markup or state. `isDesktop` picks ONE tree
-  // below — nothing renders twice.
-  // ---------------------------------------------------------------------
 
   const galleryBlock = (
     <Box
@@ -868,8 +742,6 @@ export default function ProductDetailPage() {
         gap: 1.5,
       }}
     >
-      {/* thumbnail rail — horizontal scroll on mobile instead of
-          wrapping/overflowing the viewport, smaller thumbs on xs */}
       <Stack
         direction={{ xs: "row", md: "column" }}
         gap={1}
@@ -881,7 +753,7 @@ export default function ProductDetailPage() {
       >
         {PRODUCT.images.map((img, i) => (
           <Box
-            key={img}
+            key={img + i}
             onClick={() => setActiveImage(i)}
             sx={{
               width: { xs: 36, md: 68 },
@@ -937,8 +809,6 @@ export default function ProductDetailPage() {
     />
   );
 
-  // Nav + the content it controls, always kept together so switching tabs
-  // never requires scrolling somewhere else to see the result.
   const navAndTabsBlock = (
     <Box sx={{ mt: spacingTokens.md }}>
       <ProductInfoSidebarNav
@@ -950,7 +820,21 @@ export default function ProductDetailPage() {
         bg={bg}
       />
       <ProductInfoTabs
-        product={PRODUCT}
+        product={{
+          ...PRODUCT,
+          // ProductInfoTabs likely expects `descriptionSections` /
+          // `reviews` / `ratingBreakdown` — real API only gives a flat
+          // description string and no reviews at all. Pass through what's
+          // real and the mocks for what isn't, until those endpoints exist.
+          descriptionSections: [
+            {
+              heading: PRODUCT.name,
+              body: PRODUCT.description || PRODUCT.shortDescription || "",
+            },
+          ],
+          reviews: MOCK_REVIEWS,
+          ratingBreakdown: MOCK_RATING_BREAKDOWN,
+        }}
         activeTab={activeTab}
         border={border}
         fg={fg}
@@ -960,8 +844,6 @@ export default function ProductDetailPage() {
     </Box>
   );
 
-  // Everything needed to decide + buy: badges, title, seller, price,
-  // rating, stock, size, quantity, Add to Cart.
   const buyEssentialsBlock = (
     <Stack gap={1.2}>
       <Stack
@@ -969,7 +851,7 @@ export default function ProductDetailPage() {
         justifyContent="space-between"
         alignItems="flex-start"
       >
-        {PRODUCT.official && (
+        {PRODUCT.isFeatured && (
           <Box
             sx={{
               px: 1,
@@ -987,7 +869,7 @@ export default function ProductDetailPage() {
                 color: "#fff",
               }}
             >
-              Official Store
+              Featured
             </Typography>
           </Box>
         )}
@@ -1022,7 +904,7 @@ export default function ProductDetailPage() {
       </Typography>
 
       <SellerCard
-        info={PRODUCT.sellerInfo}
+        info={MOCK_SELLER_INFO}
         border={border}
         fg={fg}
         main={main}
@@ -1084,21 +966,23 @@ export default function ProductDetailPage() {
         </Typography>
       </Stack>
 
-      <Stack direction="row" alignItems="center" gap={0.6}>
-        <Flash20Filled style={{ fontSize: 14, color: main.primary }} />
-        <Typography
-          sx={{
-            fontFamily: "Poppins",
-            fontSize: 12,
-            fontWeight: 700,
-            color: main.primary,
-          }}
-        >
-          TETYHUB EXPRESS
-        </Typography>
-      </Stack>
+      {PRODUCT.freeShipping && (
+        <Stack direction="row" alignItems="center" gap={0.6}>
+          <Flash20Filled style={{ fontSize: 14, color: main.primary }} />
+          <Typography
+            sx={{
+              fontFamily: "Poppins",
+              fontSize: 12,
+              fontWeight: 700,
+              color: main.primary,
+            }}
+          >
+            FREE SHIPPING
+          </Typography>
+        </Stack>
+      )}
 
-      {PRODUCT.stockCount <= 10 && (
+      {PRODUCT.trackInventory && PRODUCT.stockCount <= 10 && (
         <Typography
           sx={{
             fontFamily: "Poppins",
@@ -1107,7 +991,9 @@ export default function ProductDetailPage() {
             color: "#ef4444",
           }}
         >
-          Only {PRODUCT.stockCount} left in stock — order soon
+          {PRODUCT.stockCount > 0
+            ? `Only ${PRODUCT.stockCount} left in stock — order soon`
+            : "Out of stock"}
         </Typography>
       )}
 
@@ -1124,13 +1010,13 @@ export default function ProductDetailPage() {
               mb: 0.4,
             }}
           >
-            SIZE — {selectedSize}
+            OPTION — {selectedSize}
           </Typography>
           <Stack direction="row" gap={0.8} flexWrap="wrap">
-            {PRODUCT.sizes.map((s) => (
+            {PRODUCT.sizes.map((s, i) => (
               <Box
-                key={s}
-                onClick={() => setSelectedSize(s)}
+                key={s + i}
+                onClick={() => handleSelectSize(s, i)}
                 sx={{
                   px: 1.4,
                   py: 0.7,
@@ -1181,7 +1067,13 @@ export default function ProductDetailPage() {
           </Typography>
           <IconButton
             size="small"
-            onClick={() => setQty((q) => Math.min(PRODUCT.stockCount, q + 1))}
+            onClick={() =>
+              setQty((q) =>
+                PRODUCT.trackInventory
+                  ? Math.min(PRODUCT.stockCount, q + 1)
+                  : q + 1,
+              )
+            }
           >
             <Add16Regular style={{ fontSize: 14 }} />
           </IconButton>
@@ -1190,13 +1082,22 @@ export default function ProductDetailPage() {
 
       <Stack direction="row" gap={1.2} sx={{ mt: 0.5 }}>
         <Button
-          onClick={handleCart}
+          onClick={handleAddToCart}
+          disabled={
+            addingToCart || (PRODUCT.trackInventory && PRODUCT.stockCount <= 0)
+          }
           fullWidth
           variant="contained"
-          startIcon={<Cart24Regular />}
+          startIcon={
+            addingToCart ? (
+              <CircularProgress size={16} sx={{ color: "#fff" }} />
+            ) : (
+              <Cart24Regular />
+            )
+          }
           sx={{
-            borderColor: main.primary,
-            color: main.primary,
+            backgroundColor: main.primary,
+            color: "#fff",
             textTransform: "none",
             fontFamily: "Poppins",
             fontWeight: 700,
@@ -1204,14 +1105,31 @@ export default function ProductDetailPage() {
             py: { xs: 1.4, md: 2 },
           }}
         >
-          Add to Cart
+          {PRODUCT.trackInventory && PRODUCT.stockCount <= 0
+            ? "Out of Stock"
+            : "Add to Cart"}
         </Button>
       </Stack>
+
+      <Button
+        onClick={handleCart}
+        fullWidth
+        variant="outlined"
+        sx={{
+          borderColor: main.primary,
+          color: main.primary,
+          textTransform: "none",
+          fontFamily: "Poppins",
+          fontWeight: 700,
+          borderRadius: radiusTokens.md,
+          py: { xs: 1, md: 1.3 },
+        }}
+      >
+        View Cart
+      </Button>
     </Stack>
   );
 
-  // Secondary decision info: delivery, sharing, payment methods, trust
-  // badges, and the condensed summary/quick-buy card.
   const buyExtraBlock = (
     <Stack gap={1.2}>
       <DeliveryReturns border={border} fg={fg} main={main} bg={bg} />
@@ -1263,7 +1181,7 @@ export default function ProductDetailPage() {
 
       <Box sx={{ borderTop: `1px solid ${border.primary}`, mt: 0.5, pt: 1.5 }}>
         <ProductSummaryCard
-          product={PRODUCT}
+          product={rawProduct}
           fg={fg}
           border={border}
           main={main}
@@ -1275,8 +1193,6 @@ export default function ProductDetailPage() {
 
   return (
     <Box sx={{ backgroundColor: bg.primary }}>
-      {/* breadcrumb — shorter max-width on small phones so the truncated
-          product name doesn't force horizontal scroll */}
       <Stack
         direction="row"
         alignItems="center"
@@ -1289,7 +1205,7 @@ export default function ProductDetailPage() {
         }}
       >
         {["Home", PRODUCT.category, PRODUCT.name].map((crumb, i, arr) => (
-          <Stack key={crumb} direction="row" alignItems="center" gap={0.6}>
+          <Stack key={crumb + i} direction="row" alignItems="center" gap={0.6}>
             <Typography
               onClick={() => i === 0 && navigate("/")}
               sx={{
@@ -1316,9 +1232,6 @@ export default function ProductDetailPage() {
         ))}
       </Stack>
 
-      {/* Desktop: original 2-column layout (gallery/highlights/tabs on the
-          left, a sticky buy box on the right). Mobile: a single column in
-          purchase-first reading order — see the block comment above. */}
       {isDesktop ? (
         <Box
           sx={{
@@ -1360,35 +1273,36 @@ export default function ProductDetailPage() {
         </Stack>
       )}
 
-      {/* related products */}
-      <Box sx={{ px: { xs: spacingTokens.md, md: spacingTokens.xl }, pb: 10 }}>
-        <Typography
-          sx={{
-            fontFamily: "Poppins",
-            fontSize: 18,
-            fontWeight: 800,
-            color: fg.primary,
-            mb: 2,
-          }}
-        >
-          You may also like
-        </Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "repeat(1, 1fr)",
-              sm: "repeat(3, 1fr)",
-              lg: "repeat(4, 1fr)",
-            },
-            gap: spacingTokens.md,
-          }}
-        >
-          {RELATED.map((p) => (
-            <ProductListingCard key={p.id} product={p} />
-          ))}
+      {relatedRaw.length > 0 && (
+        <Box sx={{ px: { xs: spacingTokens.md, md: spacingTokens.xl }, pb: 10 }}>
+          <Typography
+            sx={{
+              fontFamily: "Poppins",
+              fontSize: 18,
+              fontWeight: 800,
+              color: fg.primary,
+              mb: 2,
+            }}
+          >
+            You may also like
+          </Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(1, 1fr)",
+                sm: "repeat(3, 1fr)",
+                lg: "repeat(4, 1fr)",
+              },
+              gap: spacingTokens.md,
+            }}
+          >
+            {relatedRaw.map((p) => (
+              <ProductListingCard key={p.id} product={p} />
+            ))}
+          </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 }

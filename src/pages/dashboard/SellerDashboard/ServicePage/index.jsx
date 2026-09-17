@@ -1,237 +1,93 @@
 // @ts-nocheck
-import { useState, useMemo } from "react";
-import {
-  Box,
-  Stack,
-  Typography,
-  TextField,
-  InputAdornment,
-  MenuItem,
-} from "@mui/material";
-import { Table, TableHead, TableBody } from "@/components/ui";
+import { useEffect, useState } from "react";
+import { Box, Stack, Typography, Button } from "@mui/material";
+import { AddFilled } from "@fluentui/react-icons";
 import { useColor } from "@/contexts/color";
-import { spacingTokens, radius } from "@/lib/theme";
-import { services, columns } from "./lib";
-import { ServiceRow } from "./ServiceRow";
-import { CreateServiceModal } from "./Modal/CreateServiceModal";
-import { SearchRegular, AddRegular } from "@fluentui/react-icons";
-import { usePagination } from "@/lib/pagination.js";
-import { TablePagination } from "@/components/shared/index.js";
-import { EditServiceModal } from "./Modal/EditServiceModal";
-import { ConfirmDeleteModal } from "@/components/feature";
+import { radiusTokens } from "@/lib/theme";
+import { useServices } from "@/Hooks/services";
+import ServicesTable from "./ServiceTable";
+import ServiceFormModal from "./ServiceFormModal";
 
-const avatarColors = [
-  "#6366f1",
-  "#ec4899",
-  "#14b8a6",
-  "#f59e0b",
-  "#8b5cf6",
-  "#10b981",
-  "#f97316",
-  "#06b6d4",
-];
+const PAGE_SIZE = 20;
 
-export default function ServicePage() {
-  const { bg, fg, border, main } = useColor();
+export default function DashboardServicePage() {
+    const { fg, bg, border, main } = useColor();
+    const { fetchServices, services, loading } = useServices();
 
-  const [selected, setSelected] = useState(/** @type {string[]} */ ([]));
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [savingService, setSavingService] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteItem, setDeleteItem] = useState(
-    /** @type {typeof services[number] | null} */ (null),
-  );
-  const [deleteLoading, setDeleteLoading] = useState(false);
+    const [offset, setOffset] = useState(0);
+    const [hasNextPage, setHasNextPage] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [editingService, setEditingService] = useState(null);
 
-  const handleConfirmDelete = () => {
-    if (!deleteItem) return;
+    const load = async () => {
+        const result = await fetchServices({ offset, limit: PAGE_SIZE });
+        setHasNextPage(Boolean(result.hasNextPage));
+    };
 
-    setDeleteLoading(true);
+    useEffect(() => {
+        load();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [offset]);
 
-    setTimeout(() => {
-      console.log("deleted:", deleteItem.id);
-      setDeleteLoading(false);
-      setDeleteOpen(false);
-      setDeleteItem(null);
-    }, 800);
-  };
+    const handleAdd = () => {
+        setEditingService(null);
+        setModalOpen(true);
+    };
 
-  const filtered = useMemo(
-    () =>
-      services.filter((s) => {
-        const matchSearch = s.name.toLowerCase().includes(search.toLowerCase());
-        const matchFilter = filter === "all" || s.status === filter;
-        return matchSearch && matchFilter;
-      }),
-    [search, filter],
-  );
+    const handleEdit = (service) => {
+        setEditingService(service);
+        setModalOpen(true);
+    };
 
-  const pg = usePagination({ data: filtered, defaultPerPage: 5 });
+     const handleView = (service) => {
+        setEditingService(service);
+        setModalOpen(true);
+    };
 
-  /** @param {string} id */
-  const toggleOne = (id) =>
-    setSelected((p) =>
-      p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
-    );
+    const page = Math.floor(offset / PAGE_SIZE) + 1;
 
-  /** @param {import("./Modal/CreateServiceModal").ServiceForm} form */
-  const handleSave = async (form) => {
-    setSavingService(true);
-
-    await new Promise((r) => setTimeout(r, 800));
-    console.log("new service", form);
-    setSavingService(false);
-    setModalOpen(false);
-  };
-
-  const inputSx = {
-    "& .MuiOutlinedInput-root": {
-      backgroundColor: bg.secondary,
-      "& fieldset": { borderColor: border.primary },
-    },
-    "& input, & .MuiSelect-select": { color: fg.primary, fontSize: 14 },
-  };
-
-  return (
-    <Stack gap={spacingTokens.md}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
+    return (
         <Box>
-          <Typography variant="h5" fontWeight={700} sx={{ color: fg.primary }}>
-            Services
-          </Typography>
-          <Typography variant="caption" sx={{ color: fg.tertiary }}>
-            {filtered.length} services
-          </Typography>
+            <Stack
+                direction={{ xs: "column", md: "row" }}
+                justifyContent={{ xs: "start", md: "space-between" }}
+                alignItems={{ xs: "start", md: "center" }}
+                gap={1.6}
+                sx={{ mb: 2.4 }}
+            >
+                <Box>
+                    <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 800, color: fg.primary }}>Services</Typography>
+                    <Typography sx={{ fontSize: 13, color: fg.secondary, mt: 0.4 }}>
+                        The bookable services you offer.
+                    </Typography>
+                </Box>
+                <Button
+                    onClick={handleAdd}
+                    variant="contained"
+                    startIcon={<AddFilled />}
+                    sx={{ backgroundColor: main.primary, textTransform: "none", fontWeight: 700, borderRadius: radiusTokens.md, px: 2.4, flexShrink: 0 }}
+                >
+                    New service
+                </Button>
+            </Stack>
+
+            <Box sx={{ border: `1px solid ${border.primary}`, borderRadius: radiusTokens.lg ?? 12, backgroundColor: bg.secondary, overflow: "hidden" }}>
+                <ServicesTable services={services} loading={loading} fg={fg} border={border} onEdit={handleEdit} onView={handleView} />
+            </Box>
+
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 1.6 }}>
+                <Typography sx={{ fontSize: 12.5, color: fg.tertiary }}>Page {page}</Typography>
+                <Stack direction="row" gap={1}>
+                    <Button disabled={offset === 0} onClick={() => setOffset((o) => Math.max(0, o - PAGE_SIZE))} sx={{ textTransform: "none", color: fg.secondary }}>
+                        Previous
+                    </Button>
+                    <Button disabled={!hasNextPage} onClick={() => setOffset((o) => o + PAGE_SIZE)} sx={{ textTransform: "none", color: fg.secondary }}>
+                        Next
+                    </Button>
+                </Stack>
+            </Stack>
+
+            <ServiceFormModal open={modalOpen} onClose={() => setModalOpen(false)} onSaved={load} editingService={editingService} />
         </Box>
-      </Stack>
-
-      <Box
-        sx={{
-          borderRadius: radius[8],
-          border: `1px solid ${border.primary}`,
-          backgroundColor: bg.secondary,
-          overflow: "hidden",
-        }}
-      >
-        <Stack
-          direction="row"
-          gap={1}
-          flexWrap="wrap"
-          alignItems="center"
-          sx={{
-            p: spacingTokens.md,
-            borderBottom: `1px solid ${border.primary}`,
-          }}
-        >
-          <TextField
-            size="small"
-            placeholder="Search services…"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              pg.setPage(1);
-            }}
-            sx={{ ...inputSx, width: 240 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchRegular fontSize={16} color={fg.tertiary} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            select
-            size="small"
-            value={filter}
-            onChange={(e) => {
-              setFilter(e.target.value);
-              pg.setPage(1);
-            }}
-            sx={{ ...inputSx, width: 160 }}
-          >
-            {["all", "available", "unavailable", "maintenance"].map((s) => (
-              <MenuItem
-                key={s}
-                value={s}
-                sx={{ fontSize: 13, textTransform: "capitalize" }}
-              >
-                {s === "all" ? "All Status" : s}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <Stack
-            direction="row"
-            alignItems="center"
-            gap={0.6}
-            onClick={() => setModalOpen(true)}
-            sx={{
-              ml: "auto",
-              px: 1.5,
-              py: 0.8,
-              borderRadius: 1.5,
-              cursor: "pointer",
-              backgroundColor: main.primary,
-              "&:hover": { opacity: 0.9 },
-            }}
-          >
-            <AddRegular fontSize={16} color="#fff" />
-            <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>
-              Add Service
-            </span>
-          </Stack>
-        </Stack>
-
-        <Table>
-          <TableHead columns={columns} />
-          <TableBody
-            loading={false}
-            count={pg.paginated.length}
-            span={columns.length}
-          >
-            {pg.paginated.map((row, i) => (
-              <ServiceRow
-                key={row.id}
-                row={row}
-                avatarColor={avatarColors[i % avatarColors.length]}
-                selected={selected.includes(row.id)}
-                onSelect={() => toggleOne(row.id)}
-                onEdit={() => setEditOpen(true)}
-                onDelete={() => {
-                  setDeleteItem(row);
-                  setDeleteOpen(true);
-                }}
-              />
-            ))}
-          </TableBody>
-        </Table>
-
-        <TablePagination {...pg} total={filtered.length} />
-      </Box>
-
-      <CreateServiceModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSave={handleSave}
-        loading={savingService}
-      />
-      <EditServiceModal
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        onSave={handleSave}
-        loading={savingService}
-      />
-      <ConfirmDeleteModal
-        open={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleConfirmDelete}
-        itemName={deleteItem?.name || "this product"}
-        loading={deleteLoading}
-      />
-    </Stack>
-  );
+    );
 }

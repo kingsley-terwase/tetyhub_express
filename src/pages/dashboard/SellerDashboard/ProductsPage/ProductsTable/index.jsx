@@ -112,11 +112,6 @@ export default function ProductsTable({ products, loading, fg, border, onEdit })
                             <Chip
                                 label={p.status ? "Active" : "Inactive"}
                                 size="small"
-                                // The theme forces MuiChip's default color to "primary" and
-                                // styles `.MuiChip-colorPrimary` (root+color, 2 classes) plus a
-                                // `"& *"` rule that hardcodes the label text white. Both beat a
-                                // plain sx class on specificity, so this needs `!important` and
-                                // an explicit label override to actually take effect.
                                 sx={{
                                     backgroundColor: `${p.status ? GREEN : GRAY}1A !important`,
                                     fontWeight: 700,

@@ -9,9 +9,13 @@ const MAX_HIGHLIGHTS = 14;
 // not separately-authored content, so it can never drift out of sync with
 // what the "Product details" tab actually says below it.
 export default function KeyHighlights({ product, fg, border, main, bg }) {
-  const highlights = product.descriptionSections
-    .slice(0, MAX_HIGHLIGHTS)
-    .map((s) => s.heading);
+  // Defensive fallback: if descriptionSections is ever missing (e.g. the
+  // caller forgot to set it, or a product loads before it's fully mapped),
+  // render nothing instead of crashing the whole page.
+  const sections = product?.descriptionSections || [];
+  const highlights = sections.slice(0, MAX_HIGHLIGHTS).map((s) => s.heading);
+
+  if (highlights.length === 0) return null;
 
   return (
     <Box

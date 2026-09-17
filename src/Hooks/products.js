@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import axiosInstance from "../Utils/AxiosInstance";
 import { getErrorMessage } from "../Utils/Msg";
 import { useNotification } from "@/contexts/notification";
@@ -75,13 +75,6 @@ export const useProductDetail = () => {
     return { fetchProduct, loading };
 };
 
-/**
- * POST /vendor/product/create
- * ⚠️ Unlike categories/admins, this endpoint takes a raw JSON body, not
- * urlencoded form data — confirmed from the Postman collection example.
- * Images are sent as an array of base64 data URLs (same encoding as the
- * single-image category upload, just multiple of them).
- */
 export const useCreateProduct = () => {
     const [loading, setLoading] = useState(false);
     const { success: notifySuccess, error: notifyError } = useNotification();
@@ -137,14 +130,6 @@ export const useCreateProduct = () => {
     return { createProduct, loading };
 };
 
-/**
- * PATCH /vendor/product/update/{id}
- * ⚠️ Assumption: the Postman entry for this request was saved without a
- * URL, so the path is inferred from the same `/vendor/product/...` naming
- * as create/read/id. Confirm against your backend route once wired up.
- * Also assumes — same as categories — that omitting `imageFiles` leaves
- * existing images untouched rather than clearing them.
- */
 export const useUpdateProduct = () => {
     const [loading, setLoading] = useState(false);
     const { success: notifySuccess, error: notifyError } = useNotification();
@@ -178,4 +163,40 @@ export const useUpdateProduct = () => {
     };
 
     return { updateProduct, loading };
+};
+
+
+export const usePublicProducts = () => {
+    const [products, setProducts] = useState([]);
+    const [pagination, setPagination] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const { error: notifyError } = useNotification();
+
+    const fetchProducts = useCallback(async (params = {}) => {
+        setLoading(true);
+        try {
+            const hasFilters = Object.keys(params).length > 0;
+            const url = hasFilters ? "/products/search" : "/products";
+            const response = await axiosInstance.get(url, { params });
+            const { result, success, message } = response.data;
+
+            if (!success) {
+                notifyError(message || "Could not load products");
+                setLoading(false);
+                return { success: false, message };
+            }
+
+            setProducts(result?.data || []);
+            setPagination(result?.pagination || null);
+            setLoading(false);
+            return { success: true, result };
+        } catch (error) {
+            const errorMessage = getErrorMessage(error, "Could not load products");
+            notifyError(errorMessage);
+            setLoading(false);
+            return { success: false, message: errorMessage };
+        }
+    }, [notifyError]);
+
+    return { products, pagination, loading, fetchProducts };
 };

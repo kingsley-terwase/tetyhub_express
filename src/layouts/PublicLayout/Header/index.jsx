@@ -33,6 +33,7 @@ import { NAV_LINKS } from "./data";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/auth";
 import { getRoleBasePath } from "@/lib/roles";
+import { useCart } from "@/Hooks/cart";
 
 const HEADING_FONT = "Syne";
 
@@ -58,8 +59,15 @@ export default function Header() {
   const permission = useAuthStore((s) => s.permission);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
+  const { cart } = useCart();
+
+  const cartItemCount = (cart?.items ?? cart?.item_count ?? cart?.products ?? []).reduce(
+    (sum, it) => sum + Number(it.quantity ?? it.qty ?? 1),
+    0
+  );
+
   const handleLogin = () => {
-    navigate("/login"); 
+    navigate("/login");
   };
 
   const handleHome = () => {
@@ -70,9 +78,6 @@ export default function Header() {
     navigate("/cart");
   };
 
-  // Logged-in users land on their own dashboard when they click their name —
-  // works for customers, sellers, and admins alike since getRoleBasePath
-  // already knows where each role belongs.
   const handleGreetingClick = () => {
     navigate(getRoleBasePath(permission));
   };
@@ -129,7 +134,6 @@ export default function Header() {
           <CategoriesMenu />
         </Box>
 
-        {/* Search — desktop/tablet only, mirrored inside the mobile drawer */}
         <Box
           sx={{
             flexGrow: 1,
@@ -191,7 +195,6 @@ export default function Header() {
           })}
         </Stack>
 
-        {/* Actions */}
         <Stack
           direction="row"
           spacing={spacingTokens.xs}
@@ -204,7 +207,7 @@ export default function Header() {
             sx={{ color: fg.primary }}
             aria-label="Cart"
           >
-            <Badge badgeContent={3} color="error">
+            <Badge badgeContent={cartItemCount} color="error" max={99} invisible={cartItemCount === 0}>
               <ShoppingBag24Filled style={{ fontSize: 20 }} />
             </Badge>
           </IconButton>
@@ -242,7 +245,7 @@ export default function Header() {
                 <Person24Filled style={{ fontSize: 14 }} />
               </Box>
               <Typography
-               onClick={handleGreetingClick}
+                onClick={handleGreetingClick}
                 sx={{
                   fontFamily: HEADING_FONT,
                   fontSize: 13.5,

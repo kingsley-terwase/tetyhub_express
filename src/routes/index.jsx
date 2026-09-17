@@ -15,7 +15,6 @@ import {
   ProductsPage,
   SellerAprovalsPage,
   SellerOverviewPage,
-  ServicePage,
   ListingModerationPage,
   AdminSettingsPage,
   AdminOrdersPage,
@@ -77,6 +76,8 @@ import SubcategoriesPage from "@/pages/dashboard/AdminDashboard/SubCategoriesPag
 import ChildCategoriesPage from "@/pages/dashboard/AdminDashboard/ChildCategories";
 import VerifyEmailPage from "@/pages/public/Auth/VerifyEmail";
 import AdminRequestPage from "@/pages/dashboard/AdminDashboard/AdminRequest";
+import DashboardServicePage from "@/pages/dashboard/SellerDashboard/ServicePage";
+import CurrenciesPage from "@/pages/dashboard/AdminDashboard/CurrencyPage";
 
 export default function Routes() {
   // Reactive subscription — NOT .getState(). A snapshot read here means this
@@ -101,7 +102,7 @@ export default function Routes() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/categories" element={<CategoryListingPage />} />
         <Route path="/category/:categoryId" element={<CategoryListingPage />} />
-        <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/products/:id" element={<ProductDetailPage />} />
         <Route path="/sell" element={<SellPage />} />
         <Route path="/store" element={<StorePage />} />
         <Route path="/services" element={<ServicesPage />} />
@@ -157,7 +158,7 @@ export default function Routes() {
               />
               <Route
                 path="/dashboard/seller/services"
-                element={<ServicePage />}
+                element={<DashboardServicePage />}
               />
               <Route path="/dashboard/seller/ai" element={<AiPage />} />
               <Route path="/dashboard/seller/orders" element={<OrderPage />} />
@@ -230,6 +231,10 @@ export default function Routes() {
                 path="/dashboard/admin/admin-roles"
                 element={<AdminRolesPage />}
               />
+               <Route
+                path="/dashboard/admin/currency"
+                element={<CurrenciesPage />}
+              />
               <Route path="/dashboard/admin/sub_categories" element={<SubcategoriesPage />} />
               <Route path="/dashboard/admin/child_categories" element={<ChildCategoriesPage />} />
               <Route
@@ -266,6 +271,7 @@ export default function Routes() {
                 path="/dashboard/admin/promotions"
                 element={<PromotionsCouponsPage />}
               />
+              
               <Route
                 path="/dashboard/admin/kyc"
                 element={<KYCVerificationPage />}

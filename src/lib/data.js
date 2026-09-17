@@ -11,6 +11,7 @@ import {
   ShoppingBagRegular,
   MegaphoneRegular,
   ChatRegular,
+  CurrencyDollarRupeeRegular,
   StarRegular,
 } from "@fluentui/react-icons";
 
@@ -76,6 +77,10 @@ export const namedRoutes = {
     label: "Seller Directories",
     icon: PersonStarRegular,
   },
+  "/dashboard/admin/currency": {
+    label: "Currency",
+    icon: CurrencyDollarRupeeRegular,
+  },
   "/dashboard/admin/buyer-directory": {
     label: "Buyer Directories",
     icon: PersonStarRegular,
@@ -87,6 +92,10 @@ export const namedRoutes = {
   "/dashboard/admin/promotions": {
     label: "Promotions",
     icon: MegaphoneRegular,
+  },
+  "/dashboard/admin/services": {
+    label: "Services",
+    icon: DocumentLandscapeDataRegular,
   },
   "/dashboard/admin/kyc": {
     label: "Kyc",
