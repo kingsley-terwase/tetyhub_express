@@ -90,7 +90,7 @@ export default function Header() {
         top: 0,
         zIndex: 30,
         backgroundColor: bg.primary,
-        borderBottom: `1px solid ${border.primary}`,
+        // borderBottom: `1px solid ${border.primary}`,
       }}
     >
       <Box
@@ -142,9 +142,9 @@ export default function Header() {
             gap: spacingTokens.xs,
             backgroundColor: bg.secondary,
             border: `1px solid ${border.primary}`,
-            borderRadius: radiusTokens.lg,
-            px: spacingTokens.md,
-            py: 0.75,
+            borderRadius: radiusTokens["5xl"],
+            px: spacingTokens.sm,
+            py: 0.45,
           }}
         >
           <Search24Regular style={{ fontSize: 18, color: fg.secondary }} />
